@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Router</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#212127">
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Router">
+  <link rel="apple-touch-icon" href="icons/ruter_logo_red.svg">
+</head>
+<body>
+  <header class="topbar">
+    <div class="top-row">
+      <h1 id="title"></h1>
+      <button id="overflow" class="overflow" aria-label="More">
+        <img src="icons/overflow.svg" alt="" class="icon-24">
+      </button>
+    </div>
+    <h1 class="title-copy">Tickets</h1>
+  </header>
+
+  <main id="view" class="view">
+  </main>
+
+
+  <!-- bottom nav bar -->
+  <nav class="tabs" role="tablist">
+    <button class="tab" data-route="#travel"
+            data-icon="icons/bus.svg"
+            data-icon-selected="icons/bus2.svg">
+      <img src="icons/bus.svg" class="icon-24" alt="">
+      <span class="tab-label">Travel</span>
+    </button>
+
+    <button class="tab" data-route="#tickets"
+            data-icon="icons/ticket.svg"
+            data-icon-selected="icons/ticket2.svg">
+      <img src="icons/ticket.svg" class="icon-24" alt="">
+      <span class="tab-label">Tickets</span>
+    </button>
+
+    <button class="tab" data-route="#profile"
+            data-icon="icons/profile.svg"
+            data-icon-selected="icons/profile2.svg">
+      <img src="icons/profile.svg" class="icon-24" alt="">
+      <span class="tab-label">Profile</span>
+    </button>
+  </nav>
+  <script src="env.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.4.0/mapbox-gl.js"></script>
+
+  <script src="cordova.js"></script>
+  <script src="ticketsView.js"></script>
+  <script type="module" src="app.js"></script>
+  
+
+</body>
+</html>
