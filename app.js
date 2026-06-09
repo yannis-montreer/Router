@@ -490,10 +490,18 @@ async function render() {
   const title = document.getElementById('title')
   const titleCopy = document.querySelector('.title-copy')
 
-  const fn = routes[hash] || renderTicketsLike
-  let res = fn()
-  if (res && typeof res.then === 'function') {
-    res = await res
+  let res;
+  try {
+    const fn = routes[hash] || renderTicketsLike
+    let r = fn()
+    if (r && typeof r.then === 'function') r = await r
+    res = r
+  } catch(e) {
+    console.error('[render] route failed:', e)
+    res = {
+      html: `<div style="padding:24px;color:#fffffe;font-size:15px;opacity:0.7">Failed to load page.<br><small>${e && e.message ? e.message : e}</small></div>`,
+      title: '', tab: hash, disableOverscroll: false
+    }
   }
   view.innerHTML = res.html
 
@@ -832,7 +840,8 @@ function renderTravel(){
 
 async function renderTicketsLike(){
   // Get the latest ticket (newest first)
-  const rows = await TicketsDB.listTickets({ limit: 1 });
+  let rows = [];
+  try { rows = await TicketsDB.listTickets({ limit: 1 }); } catch(e) { console.warn('[renderTicketsLike] DB unavailable:', e); }
   let expiredTime;
 
   if (rows && rows.length) {
@@ -1242,7 +1251,8 @@ async function renderExpiredTicket(){
 }
 
 async function renderProfile(){
-  const profileName = await TicketsDB.getSetting('profileName', 'Yannis Montreer');
+  let profileName = 'Yannis Montreer';
+  try { profileName = await TicketsDB.getSetting('profileName', 'Yannis Montreer') || profileName; } catch(e) { console.warn('[renderProfile] DB unavailable:', e); }
 
   const html = `
     <section class="profile-banner">
