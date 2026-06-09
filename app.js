@@ -243,31 +243,36 @@ document.addEventListener('deviceready', async () => {
 if (!window.cordova) {
   async function pwaInit() {
     try {
-      await TicketsDB.init();
-      const saved = await TicketsDB.getSetting('offsetMinutes', 61);
-      const n = Number(saved);
-      const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : 61;
-      setOffsetMinutes(target);
-    } catch (e) { setOffsetMinutes(61); }
+      try {
+        await TicketsDB.init();
+        const saved = await TicketsDB.getSetting('offsetMinutes', 61);
+        const n = Number(saved);
+        const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : 61;
+        setOffsetMinutes(target);
+      } catch (e) { console.error('[PWA] DB init/offset failed:', e); setOffsetMinutes(61); }
 
-    try {
-      const savedName = await TicketsDB.getSetting('firstName', 'Yannis');
-      if (savedName) window.__profileFirstName = savedName;
-    } catch (e) { /* keep default */ }
+      try {
+        const savedName = await TicketsDB.getSetting('firstName', 'Yannis');
+        if (savedName) window.__profileFirstName = savedName;
+      } catch (e) { /* keep default */ }
 
-    await createBackdatedTicketIfNeeded({ force: false });
+      try {
+        await createBackdatedTicketIfNeeded({ force: false });
+      } catch (e) { console.error('[PWA] createBackdatedTicket failed:', e); }
 
-    try {
-      const latestRows = await TicketsDB.listTickets({ limit: 1 });
-      if (latestRows && latestRows.length) {
-        const parts = latestRows[0].zone.split(',').map(s => s.trim()).filter(Boolean);
-        window.__confirmedZones = new Set(parts.length ? parts : ['1']);
-      } else {
-        window.__confirmedZones = new Set(['1']);
-      }
-    } catch (e) { window.__confirmedZones = new Set(['1']); }
-
-    onReady();
+      try {
+        const latestRows = await TicketsDB.listTickets({ limit: 1 });
+        if (latestRows && latestRows.length) {
+          const parts = latestRows[0].zone.split(',').map(s => s.trim()).filter(Boolean);
+          window.__confirmedZones = new Set(parts.length ? parts : ['1']);
+        } else {
+          window.__confirmedZones = new Set(['1']);
+        }
+      } catch (e) { window.__confirmedZones = new Set(['1']); }
+    } finally {
+      // Always launch the UI — even if DB is unavailable the app is usable
+      onReady();
+    }
   }
 
   if (document.readyState === 'loading') {
