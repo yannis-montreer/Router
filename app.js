@@ -8,6 +8,13 @@ if (!window.cordova && 'serviceWorker' in navigator) {
     .catch(err => console.warn('[SW] registration failed:', err));
 }
 
+// ── iOS detection: adds 'ios' class to <body> for iOS-specific styling ────────
+(function() {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (isIOS) document.documentElement.classList.add('ios');
+})();
+
 // Turn on crash-revealing logs
 window.addEventListener('error', e => console.error('window.onerror:', e.error || e.message));
 window.addEventListener('unhandledrejection', e => console.error('unhandledrejection:', e.reason));

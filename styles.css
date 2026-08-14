@@ -1342,3 +1342,39 @@ ul li::before {
 .center        { display: flex; align-items: center; justify-content: center; }
 .no-overscroll { overscroll-behavior-y: none; }
 .export-btn    { height: 30px; width: 50px; }
+
+/* iOS: increase tabs-h to account for the floating pill + bottom gap */
+.ios { --tabs-h: calc(88px + env(safe-area-inset-bottom, 0px)); }
+
+/* =============================================================
+   iOS-ONLY — FLOATING PILL TAB BAR
+   All rules scoped to .ios so Android is untouched
+   ============================================================= */
+.ios .tabs {
+  left: 12px;
+  right: 12px;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  border-radius: 26px;
+  background: rgba(36, 36, 43, 0.82);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 8px 6px;
+  gap: 4px;
+  align-items: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Active tab highlight pill */
+.ios .tab.active {
+  background: rgba(90, 91, 102, 0.55);
+  border-radius: 20px;
+}
+.ios .tab.active::before { background: transparent; }
+
+/* All tabs: even height, centred content */
+.ios .tab {
+  border-radius: 20px;
+  padding: 8px 4px 6px;
+}
+
