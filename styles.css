@@ -1356,7 +1356,7 @@ ul li::before {
   width: 60% !important;
   transform: translateX(-50%) !important;
   bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
-  border-radius: 30px !important;
+  border-radius: 100px !important;
   background: rgba(38, 38, 46, 0.88) !important;
   -webkit-backdrop-filter: blur(24px) saturate(1.8);
   backdrop-filter: blur(24px) saturate(1.8);
@@ -1370,13 +1370,13 @@ ul li::before {
 /* Active tab: lighter rounded pill */
 .ios .tab.active {
   background: rgba(85, 87, 100, 0.65) !important;
-  border-radius: 22px !important;
+  border-radius: 100px !important;
 }
 .ios .tab.active::before { background: transparent !important; }
 
 /* All tabs */
 .ios .tab {
-  border-radius: 22px !important;
+  border-radius: 100px !important;
   padding: 9px 6px 7px !important;
   min-height: 56px !important;
 }
