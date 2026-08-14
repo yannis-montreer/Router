@@ -1361,7 +1361,7 @@ ul li::before {
   -webkit-backdrop-filter: blur(24px) saturate(1.8);
   backdrop-filter: blur(24px) saturate(1.8);
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
-  padding: 7px 8px calc(7px) !important;
+  padding: 4px 6px !important;
   gap: 4px !important;
   align-items: center !important;
   box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45) !important;
@@ -1377,7 +1377,7 @@ ul li::before {
 /* All tabs */
 .ios .tab {
   border-radius: 100px !important;
-  padding: 9px 6px 7px !important;
-  min-height: 56px !important;
+  padding: 6px 10px !important;
+  min-height: unset !important;
 }
 
