@@ -1351,8 +1351,10 @@ ul li::before {
    All rules scoped to .ios so Android is untouched
    ============================================================= */
 .ios .tabs {
-  left: 16px !important;
-  right: 16px !important;
+  left: 50% !important;
+  right: auto !important;
+  width: 60% !important;
+  transform: translateX(-50%) !important;
   bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
   border-radius: 30px !important;
   background: rgba(38, 38, 46, 0.88) !important;
