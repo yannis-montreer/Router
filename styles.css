@@ -1406,7 +1406,7 @@ ul li::before {
   bottom: 1px !important;
   left: 0 !important;
   right: 2px !important;
-  border-radius: 96px 26px 26px 96px !important;
+  border-radius: 96px 50px 50px 96px !important;
 }
 
 /* Right tab (Profile): same top/bottom gap as Tickets, outer radius follows pill */
@@ -1415,7 +1415,7 @@ ul li::before {
   bottom: 1px !important;
   left: 2px !important;
   right: 0 !important;
-  border-radius: 26px 96px 96px 26px !important;
+  border-radius: 50px 96px 96px 50px !important;
 }
 
 /* Tickets and Profile icons: 30% smaller than Travel */
