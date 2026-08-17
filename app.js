@@ -14,15 +14,6 @@ if (!window.cordova && 'serviceWorker' in navigator) {
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   if (!isIOS) return;
   document.documentElement.classList.add('ios');
-  // Swap Travel tab icon to iOS-specific version (bus_IOS.svg)
-  document.addEventListener('DOMContentLoaded', () => {
-    const travelBtn = document.querySelector('.tab[data-route="#travel"]');
-    if (travelBtn) {
-      travelBtn.dataset.icon = 'icons/bus_IOS.svg';
-      const img = travelBtn.querySelector('img');
-      if (img) img.setAttribute('src', 'icons/bus_IOS.svg');
-    }
-  });
 })();
 
 // Turn on crash-revealing logs
@@ -454,6 +445,16 @@ function onReady(){
 }
 
 function bindTabs(){
+  // iOS: swap Travel icon to bus_IOS.svg
+  if (document.documentElement.classList.contains('ios')) {
+    const travelBtn = document.querySelector('.tab[data-route="#travel"]');
+    if (travelBtn) {
+      travelBtn.dataset.icon = 'icons/bus_IOS.svg';
+      const img = travelBtn.querySelector('img');
+      if (img) img.setAttribute('src', 'icons/bus_IOS.svg');
+    }
+  }
+
   document.querySelectorAll('.tab').forEach(btn => {
     btn.addEventListener('click', () => {
       location.hash = btn.dataset.route
