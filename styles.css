@@ -1389,6 +1389,6 @@ ul li::before {
 
 /* Profile page: list-row leading icons tinted #2b6cfe (iOS only) */
 .ios .page-profile .list-row img.icon-24:first-child {
-  filter: invert(29%) sepia(95%) saturate(2000%) hue-rotate(215deg) brightness(105%);
+  filter: sepia(1) saturate(6) hue-rotate(184deg) brightness(0.62);
 }
 
