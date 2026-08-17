@@ -1383,11 +1383,17 @@ ul li::before {
   background: transparent !important;
 }
 
-/* Default highlight: inset rounded rect (middle tab) */
+/* Reset original ::before transform/size, then apply iOS highlight */
 .ios .tab.active::before {
   content: "" !important;
   position: absolute !important;
-  inset: 1px 2px !important;
+  top: 1px !important;
+  right: 2px !important;
+  bottom: 1px !important;
+  left: 2px !important;
+  width: auto !important;
+  height: auto !important;
+  transform: none !important;
   border-radius: 18px !important;
   background: rgba(85, 87, 100, 0.65) !important;
   z-index: 0 !important;
@@ -1395,13 +1401,19 @@ ul li::before {
 
 /* Left tab (Travel): flush left, outer radius follows pill curve */
 .ios .tab:first-child.active::before {
-  inset: 0 2px 0 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 2px !important;
   border-radius: 97px 18px 18px 97px !important;
 }
 
 /* Right tab (Profile): flush right, outer radius follows pill curve */
 .ios .tab:last-child.active::before {
-  inset: 0 0 0 2px !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 2px !important;
+  right: 0 !important;
   border-radius: 18px 97px 97px 18px !important;
 }
 
