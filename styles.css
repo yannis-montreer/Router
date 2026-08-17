@@ -1433,6 +1433,9 @@ ul li::before {
   background: #27282d !important;
   border-radius: 50% !important;
 }
+.ios .overflow img {
+  transform: rotate(90deg);
+}
 
 /* Log out button (iOS only) */
 .ios .log-out {
