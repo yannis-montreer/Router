@@ -627,6 +627,13 @@ async function render() {
 
   // keep running afterRender hook if defined
   if (typeof res.afterRender === 'function') res.afterRender()
+
+  // iOS: replace all chevron-right.svg with chevron-IOS.svg
+  if (document.documentElement.classList.contains('ios')) {
+    view.querySelectorAll('img[src*="chevron-right.svg"]').forEach(img => {
+      img.src = 'icons/chevron-IOS.svg';
+    });
+  }
 }
 
 function renderTravel(){

@@ -19,6 +19,7 @@ const APP_SHELL = [
   './icons/bus.svg',
   './icons/bus2.svg',
   './icons/bus_IOS.svg',
+  './icons/chevron-IOS.svg',
   './icons/buyticket.svg',
   './icons/buyticket_reis.svg',
   './icons/calendar.svg',
