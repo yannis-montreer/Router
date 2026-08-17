@@ -1353,7 +1353,7 @@ ul li::before {
 .ios .tabs {
   left: 50% !important;
   right: auto !important;
-  width: clamp(220px, 62vw, 340px) !important;
+  width: clamp(240px, 68vw, 360px) !important;
   transform: translateX(-50%) !important;
   bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
   border-radius: 100px !important;
@@ -1361,9 +1361,9 @@ ul li::before {
   -webkit-backdrop-filter: blur(24px) saturate(1.8);
   backdrop-filter: blur(24px) saturate(1.8);
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
-  padding: 5px 6px !important;
-  gap: 2px !important;
-  align-items: center !important;
+  padding: 3px 3px !important;
+  gap: 0 !important;
+  align-items: stretch !important;
   box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45) !important;
   --icon-size: clamp(24px, 6.5vw, 30px) !important;
 }
