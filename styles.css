@@ -1376,6 +1376,7 @@ ul li::before {
   min-height: unset !important;
   align-self: stretch !important;
   height: 100% !important;
+  justify-content: center !important;
   position: relative !important;
 }
 
