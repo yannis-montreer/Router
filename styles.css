@@ -1368,18 +1368,29 @@ ul li::before {
   --icon-size: clamp(24px, 6.5vw, 30px) !important;
 }
 
-/* Active tab: rounded rectangle bubble (not circular) */
+/* All tabs: fill full pill height */
+.ios .tab {
+  border-radius: 20px !important;
+  padding: 7px clamp(10px, 3vw, 18px) 5px !important;
+  min-height: unset !important;
+  align-self: stretch !important;
+}
+
+/* Active tab: rounded rectangle bubble */
 .ios .tab.active {
   background: rgba(85, 87, 100, 0.65) !important;
   border-radius: 20px !important;
 }
 .ios .tab.active::before { background: transparent !important; }
 
-/* All tabs */
-.ios .tab {
-  border-radius: 20px !important;
-  padding: 7px clamp(10px, 3vw, 18px) 5px !important;
-  min-height: unset !important;
+/* Left tab (Travel): outer corners follow pill curve */
+.ios .tab:first-child.active {
+  border-radius: 100px 20px 20px 100px !important;
+}
+
+/* Right tab (Profile): outer corners follow pill curve */
+.ios .tab:last-child.active {
+  border-radius: 20px 100px 100px 20px !important;
 }
 
 /* Travel tab active: tint bus_IOS.svg white → app blue (#86affe) */
