@@ -1391,20 +1391,22 @@ ul li::before {
   align-self: auto !important;
 }
 
-/* Travel (left): flush left, right side curved */
+/* Travel (left): flush left, right side curved — DEBUG */
 .ios .tab:first-child.active {
   background: rgba(85, 87, 100, 0.65) !important;
   border-radius: 96px 50px 50px 96px !important;
   margin: 1px 2px 1px 0 !important;
   align-self: auto !important;
+  outline: 3px solid lime !important;
 }
 
-/* Profile (right): flush right, left side curved */
+/* Profile (right): flush right, left side curved — DEBUG */
 .ios .tab:last-child.active {
   background: rgba(85, 87, 100, 0.65) !important;
   border-radius: 50px 96px 96px 50px !important;
   margin: 1px 0 1px 2px !important;
   align-self: auto !important;
+  outline: 3px solid red !important;
 }
 
 /* Tickets and Profile icons: 30% smaller than Travel */
