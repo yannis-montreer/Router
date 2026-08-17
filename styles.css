@@ -1387,8 +1387,9 @@ ul li::before {
   filter: invert(67%) sepia(60%) saturate(500%) hue-rotate(195deg) brightness(105%);
 }
 
-/* Profile page: list-row leading icons tinted #2b6cfe (iOS only) */
+/* Profile page: list-row leading icons tinted #2b6cfe (iOS only)
+   brightness(0) → black, invert(42%) → dark gray, puis on colore */
 .ios .page-profile .list-row img.icon-24:first-child {
-  filter: sepia(1) saturate(6) hue-rotate(184deg) brightness(0.62);
+  filter: brightness(0) invert(42%) sepia(1) saturate(800%) hue-rotate(193deg) brightness(140%);
 }
 
