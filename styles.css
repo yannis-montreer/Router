@@ -1394,16 +1394,16 @@ ul li::before {
 /* Travel (left): flush left, right side curved */
 .ios .tab:first-child.active {
   background: #52536a !important;
-  border-radius: 96px 50px 50px 96px !important;
-  margin: 1px 2px 1px 0 !important;
+  border-radius: 96px !important;
+  margin: 1px 0 !important;
   align-self: auto !important;
 }
 
 /* Profile (right): flush right, left side curved */
 .ios .tab:last-child.active {
   background: #52536a !important;
-  border-radius: 50px 96px 96px 50px !important;
-  margin: 1px 0 1px 2px !important;
+  border-radius: 96px !important;
+  margin: 1px 0 !important;
   align-self: auto !important;
 }
 
