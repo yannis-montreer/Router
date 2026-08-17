@@ -1400,22 +1400,22 @@ ul li::before {
   z-index: 0 !important;
 }
 
-/* Left tab (Travel): flush left, outer radius follows pill curve */
+/* Left tab (Travel): same top/bottom gap as Tickets, outer radius follows pill */
 .ios .tab:first-child.active::before {
-  top: 0 !important;
-  bottom: 0 !important;
+  top: 1px !important;
+  bottom: 1px !important;
   left: 0 !important;
   right: 2px !important;
-  border-radius: 97px 26px 26px 97px !important;
+  border-radius: 96px 26px 26px 96px !important;
 }
 
-/* Right tab (Profile): flush right, outer radius follows pill curve */
+/* Right tab (Profile): same top/bottom gap as Tickets, outer radius follows pill */
 .ios .tab:last-child.active::before {
-  top: 0 !important;
-  bottom: 0 !important;
+  top: 1px !important;
+  bottom: 1px !important;
   left: 2px !important;
   right: 0 !important;
-  border-radius: 26px 97px 97px 26px !important;
+  border-radius: 26px 96px 96px 26px !important;
 }
 
 /* Tickets and Profile icons: 30% smaller than Travel */
