@@ -1368,35 +1368,41 @@ ul li::before {
   --icon-size: clamp(24px, 6.5vw, 30px) !important;
 }
 
-/* All tabs: fill full pill height */
+/* All tabs: fill pill height, transparent bg */
 .ios .tab {
   border-radius: 0 !important;
   padding: 7px clamp(10px, 3vw, 18px) 5px !important;
   min-height: unset !important;
   align-self: stretch !important;
   height: 100% !important;
+  position: relative !important;
 }
 
-/* Active tab: no inner radius → seamless junction between tabs */
+/* Active: use ::before for highlight, not button background */
 .ios .tab.active {
+  background: transparent !important;
+}
+
+/* Default highlight: inset rounded rect (middle tab) */
+.ios .tab.active::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 1px 2px !important;
+  border-radius: 18px !important;
   background: rgba(85, 87, 100, 0.65) !important;
-  border-radius: 0 !important;
-}
-.ios .tab.active::before { background: transparent !important; }
-
-/* Left tab (Travel) active: only outer corners rounded */
-.ios .tab:first-child.active {
-  border-radius: 100px 0 0 100px !important;
+  z-index: 0 !important;
 }
 
-/* Middle tab (Tickets) active: no radius — flush with neighbours */
-.ios .tab:nth-child(2).active {
-  border-radius: 0 !important;
+/* Left tab (Travel): flush left, outer radius follows pill curve */
+.ios .tab:first-child.active::before {
+  inset: 0 2px 0 0 !important;
+  border-radius: 97px 18px 18px 97px !important;
 }
 
-/* Right tab (Profile) active: only outer corners rounded */
-.ios .tab:last-child.active {
-  border-radius: 0 100px 100px 0 !important;
+/* Right tab (Profile): flush right, outer radius follows pill curve */
+.ios .tab:last-child.active::before {
+  inset: 0 0 0 2px !important;
+  border-radius: 18px 97px 97px 18px !important;
 }
 
 /* Travel tab active: tint bus_IOS.svg white → app blue (#86affe) */
