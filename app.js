@@ -461,6 +461,13 @@ function bindTabs(){
       const img = ticketsBtn.querySelector('img');
       if (img) img.setAttribute('src', 'icons/ticket_IOS.svg');
     }
+    const profileBtn = document.querySelector('.tab[data-route="#profile"]');
+    if (profileBtn) {
+      profileBtn.dataset.icon         = 'icons/profile_IOS.svg';
+      profileBtn.dataset.iconSelected = 'icons/profile_IOS.svg';
+      const img = profileBtn.querySelector('img');
+      if (img) img.setAttribute('src', 'icons/profile_IOS.svg');
+    }
   }
 
   document.querySelectorAll('.tab').forEach(btn => {
@@ -481,8 +488,9 @@ function setActiveTab(hash){
 
     // iOS: use platform-specific icons (CSS filter handles blue tint when active)
     if (document.documentElement.classList.contains('ios')) {
-      if (btn.dataset.route === '#travel')  { img.setAttribute('src', 'icons/bus_IOS.svg');    return; }
-      if (btn.dataset.route === '#tickets') { img.setAttribute('src', 'icons/ticket_IOS.svg'); return; }
+      if (btn.dataset.route === '#travel')  { img.setAttribute('src', 'icons/bus_IOS.svg');     return; }
+      if (btn.dataset.route === '#tickets') { img.setAttribute('src', 'icons/ticket_IOS.svg');  return; }
+      if (btn.dataset.route === '#profile') { img.setAttribute('src', 'icons/profile_IOS.svg'); return; }
     }
 
     // remember the normal src once

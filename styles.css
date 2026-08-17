@@ -1414,9 +1414,10 @@ ul li::before {
   height: clamp(17px, 4.5vw, 21px) !important;
 }
 
-/* Travel + Tickets active: tint white icon → app blue (#86affe) */
+/* Travel + Tickets + Profile active: tint white icon → app blue (#86affe) */
 .ios .tab[data-route="#travel"].active img,
-.ios .tab[data-route="#tickets"].active img {
+.ios .tab[data-route="#tickets"].active img,
+.ios .tab[data-route="#profile"].active img {
   filter: invert(67%) sepia(60%) saturate(500%) hue-rotate(195deg) brightness(105%);
 }
 
