@@ -472,6 +472,12 @@ function setActiveTab(hash){
     const img = btn.querySelector('img')
     if (!img) return
 
+    // iOS: Travel tab always uses bus_IOS.svg (CSS filter handles blue tint when active)
+    if (document.documentElement.classList.contains('ios') && btn.dataset.route === '#travel') {
+      img.setAttribute('src', 'icons/bus_IOS.svg')
+      return
+    }
+
     // remember the normal src once
     if (!img.dataset.normalSrc) img.dataset.normalSrc = img.getAttribute('src')
 
