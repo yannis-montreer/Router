@@ -449,7 +449,8 @@ function bindTabs(){
   if (document.documentElement.classList.contains('ios')) {
     const travelBtn = document.querySelector('.tab[data-route="#travel"]');
     if (travelBtn) {
-      travelBtn.dataset.icon = 'icons/bus_IOS.svg';
+      travelBtn.dataset.icon         = 'icons/bus_IOS.svg';
+      travelBtn.dataset.iconSelected = 'icons/bus_IOS.svg'; // CSS filter handles the blue tint
       const img = travelBtn.querySelector('img');
       if (img) img.setAttribute('src', 'icons/bus_IOS.svg');
     }

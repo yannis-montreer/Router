@@ -1381,3 +1381,8 @@ ul li::before {
   min-height: unset !important;
 }
 
+/* Travel tab active: tint bus_IOS.svg white icon to app blue (#86affe) */
+.ios .tab[data-route="#travel"].active img {
+  filter: invert(67%) sepia(60%) saturate(500%) hue-rotate(195deg) brightness(105%);
+}
+
