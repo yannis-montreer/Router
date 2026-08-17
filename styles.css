@@ -1428,6 +1428,12 @@ ul li::before {
   filter: brightness(0) invert(42%) sepia(1) saturate(800%) hue-rotate(215deg) brightness(105%);
 }
 
+/* Overflow dots button (iOS only) */
+.ios .overflow {
+  background: #27282d !important;
+  border-radius: 50% !important;
+}
+
 /* Log out button (iOS only) */
 .ios .log-out {
   background: #34353a !important;
