@@ -1371,7 +1371,8 @@ ul li::before {
 /* All tabs: fill pill height, transparent bg */
 .ios .tab {
   border-radius: 0 !important;
-  padding: 5px clamp(10px, 3vw, 18px) 3px !important;
+  padding: 3px clamp(10px, 3vw, 18px) 2px !important;
+  gap: 3px !important;
   min-height: unset !important;
   align-self: stretch !important;
   height: 100% !important;
