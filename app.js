@@ -8,11 +8,21 @@ if (!window.cordova && 'serviceWorker' in navigator) {
     .catch(err => console.warn('[SW] registration failed:', err));
 }
 
-// ── iOS detection: adds 'ios' class to <body> for iOS-specific styling ────────
+// ── iOS detection: adds 'ios' class to <html> for iOS-specific styling ────────
 (function() {
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  if (isIOS) document.documentElement.classList.add('ios');
+  if (!isIOS) return;
+  document.documentElement.classList.add('ios');
+  // Swap Travel tab icon to iOS-specific version (bus_IOS.svg)
+  document.addEventListener('DOMContentLoaded', () => {
+    const travelBtn = document.querySelector('.tab[data-route="#travel"]');
+    if (travelBtn) {
+      travelBtn.dataset.icon = 'icons/bus_IOS.svg';
+      const img = travelBtn.querySelector('img');
+      if (img) img.setAttribute('src', 'icons/bus_IOS.svg');
+    }
+  });
 })();
 
 // Turn on crash-revealing logs
