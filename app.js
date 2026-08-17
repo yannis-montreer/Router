@@ -445,14 +445,21 @@ function onReady(){
 }
 
 function bindTabs(){
-  // iOS: swap Travel icon to bus_IOS.svg
+  // iOS: swap tab icons to iOS-specific versions
   if (document.documentElement.classList.contains('ios')) {
     const travelBtn = document.querySelector('.tab[data-route="#travel"]');
     if (travelBtn) {
       travelBtn.dataset.icon         = 'icons/bus_IOS.svg';
-      travelBtn.dataset.iconSelected = 'icons/bus_IOS.svg'; // CSS filter handles the blue tint
+      travelBtn.dataset.iconSelected = 'icons/bus_IOS.svg';
       const img = travelBtn.querySelector('img');
       if (img) img.setAttribute('src', 'icons/bus_IOS.svg');
+    }
+    const ticketsBtn = document.querySelector('.tab[data-route="#tickets"]');
+    if (ticketsBtn) {
+      ticketsBtn.dataset.icon         = 'icons/ticket_IOS.svg';
+      ticketsBtn.dataset.iconSelected = 'icons/ticket_IOS.svg';
+      const img = ticketsBtn.querySelector('img');
+      if (img) img.setAttribute('src', 'icons/ticket_IOS.svg');
     }
   }
 
@@ -472,10 +479,10 @@ function setActiveTab(hash){
     const img = btn.querySelector('img')
     if (!img) return
 
-    // iOS: Travel tab always uses bus_IOS.svg (CSS filter handles blue tint when active)
-    if (document.documentElement.classList.contains('ios') && btn.dataset.route === '#travel') {
-      img.setAttribute('src', 'icons/bus_IOS.svg')
-      return
+    // iOS: use platform-specific icons (CSS filter handles blue tint when active)
+    if (document.documentElement.classList.contains('ios')) {
+      if (btn.dataset.route === '#travel')  { img.setAttribute('src', 'icons/bus_IOS.svg');    return; }
+      if (btn.dataset.route === '#tickets') { img.setAttribute('src', 'icons/ticket_IOS.svg'); return; }
     }
 
     // remember the normal src once
