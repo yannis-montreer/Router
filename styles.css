@@ -1347,6 +1347,40 @@ ul li::before {
 .ios { --tabs-h: calc(84px + env(safe-area-inset-bottom, 0px)); }
 .ios .view { height: 100dvh !important; }
 
+/* iOS map controls (Layers + Target buttons) */
+.ios-map-controls {
+  position: absolute;
+  right: 14px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 5;
+  pointer-events: auto;
+  transition: top 0.05s linear;
+}
+.ios-map-btn {
+  appearance: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(33, 33, 39, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.ios-map-btn img {
+  width: 20px;
+  height: 20px;
+  filter: invert(1);
+}
+/* Hide native Mapbox GeolocateControl on iOS */
+.ios .mapboxgl-ctrl-geolocate { display: none !important; }
+
 /* =============================================================
    iOS-ONLY — FLOATING PILL TAB BAR
    All rules scoped to .ios so Android is untouched

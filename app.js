@@ -761,6 +761,31 @@ function renderTravel(){
         try { geo.trigger(); } catch (e) { /* ignore if permissions not granted yet */ }
       });
 
+      // iOS: inject custom map control buttons (Layers + Target)
+      if (document.documentElement.classList.contains('ios')) {
+        const travelRoot = document.querySelector('.travel-root');
+        if (travelRoot && !document.getElementById('iosMapControls')) {
+          const ctrl = document.createElement('div');
+          ctrl.id = 'iosMapControls';
+          ctrl.className = 'ios-map-controls';
+          ctrl.innerHTML = `
+            <button class="ios-map-btn" id="iosLayersBtn" aria-label="Layers">
+              <img src="icons/Layers_IOS.svg" width="20" height="20">
+            </button>
+            <button class="ios-map-btn" id="iosTargetBtn" aria-label="My location">
+              <img src="icons/target_IOS.svg" width="20" height="20">
+            </button>
+          `;
+          travelRoot.appendChild(ctrl);
+          document.getElementById('iosTargetBtn').addEventListener('click', () => {
+            try { geo.trigger(); } catch (e) {}
+          });
+          // Set initial position matching the default sheet offset (52vh)
+          ctrl.style.top = 'calc(52vh - 96px)';
+          ctrl.style.display = 'flex';
+        }
+      }
+
 
       // --- Android touch-only bottom-sheet drag with safe click threshold ---
       const sheet = document.getElementById('travelSheet');
@@ -791,6 +816,13 @@ function renderTravel(){
         sheet.style.setProperty('--sheet-offset', vh + 'vh');
         sheet.classList.toggle('sheet--anim', !!animate);
         updateMapPadding(vh, animate);
+        // iOS map controls: follow the sheet top
+        const iosCtrl = document.getElementById('iosMapControls');
+        if (iosCtrl) {
+          const visible = vh >= 35;
+          iosCtrl.style.display = visible ? 'flex' : 'none';
+          iosCtrl.style.top = `calc(${vh}vh - 96px)`;
+        }
       };
 
       // optional: your snap logic, or call your existing snapTo('half'|'expanded'|'collapsed')
