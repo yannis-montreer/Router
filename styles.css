@@ -1354,7 +1354,7 @@ ul li::before {
   display: none;
   flex-direction: column;
   gap: 10px;
-  z-index: 5;
+  z-index: 20;
   pointer-events: auto;
   transition: top 0.05s linear;
 }
