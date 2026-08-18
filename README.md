@@ -20,7 +20,7 @@ ANDROID_HOME=C:\Users\<you>\AppData\Local\Android\Sdk
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/yannorth/Router C:\Projects\Router
+git clone https://github.com/yannis-montreer/Router C:\Projects\Router
 ```
 
 ### 2. Create `env.js` in the repo root
