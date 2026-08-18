@@ -781,7 +781,7 @@ function renderTravel(){
             try { geo.trigger(); } catch (e) {}
           });
           // Set initial position matching the default sheet offset (52vh)
-          ctrl.style.top = 'calc(52vh - 140px)';
+          ctrl.style.top = 'calc(52vh - 220px)';
           ctrl.style.display = 'flex';
         }
       }
@@ -821,7 +821,7 @@ function renderTravel(){
         if (iosCtrl) {
           const visible = vh >= 35;
           iosCtrl.style.display = visible ? 'flex' : 'none';
-          iosCtrl.style.top = `calc(${vh}vh - 140px)`;
+          iosCtrl.style.top = `calc(${vh}vh - 220px)`;
         }
       };
 
