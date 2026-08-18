@@ -15,6 +15,34 @@
       if (isIOS) document.documentElement.classList.add('ios');
     })();
   </script>
+  <style>
+    #auth-screen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #212127;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; padding: 40px;
+    }
+    #auth-screen img { width: 72px; height: 72px; margin-bottom: 8px; }
+    #auth-screen h2 { color: #fbfbfc; font-size: 22px; margin: 0; font-family: system-ui; }
+    #auth-screen p { color: #9a9ca5; font-size: 14px; margin: 0; font-family: system-ui; text-align: center; }
+    #auth-code {
+      width: 100%; max-width: 280px;
+      padding: 14px 16px; border-radius: 12px;
+      background: #2a2a32; border: 1px solid #3a3a45;
+      color: #fbfbfc; font-size: 18px; text-align: center;
+      letter-spacing: 4px; text-transform: uppercase;
+      outline: none; font-family: system-ui;
+    }
+    #auth-btn {
+      width: 100%; max-width: 280px;
+      padding: 14px; border-radius: 12px;
+      background: #86affe; border: none;
+      color: #212127; font-size: 16px; font-weight: 600;
+      cursor: pointer; font-family: system-ui;
+    }
+    #auth-error { color: #f14341; font-size: 14px; font-family: system-ui; min-height: 20px; }
+  </style>
   <meta name="theme-color" content="#212127">
   <!-- iOS PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,6 +51,17 @@
   <link rel="apple-touch-icon" href="icons/icon-180.png">
 </head>
 <body>
+
+  <!-- Auth screen — hidden once activated -->
+  <div id="auth-screen">
+    <img src="icons/ruter_logo_red.svg" alt="">
+    <h2>Welcome</h2>
+    <p>Enter your invitation code to access the app.</p>
+    <input id="auth-code" type="text" placeholder="CODE" maxlength="12" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div id="auth-error"></div>
+    <button id="auth-btn">Continue</button>
+  </div>
+
   <header class="topbar">
     <div class="top-row">
       <h1 id="title"></h1>
@@ -67,6 +106,61 @@
   <script src="cordova.js"></script>
   <script src="ticketsView.js"></script>
   <script src="app.bundle.js"></script>
+  <script>
+    (function() {
+      const WORKER = 'https://router-auth.jeanmichel-katze.workers.dev';
+
+      // Generate or retrieve a stable device ID
+      let deviceId = localStorage.getItem('deviceId');
+      if (!deviceId) {
+        deviceId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now();
+        localStorage.setItem('deviceId', deviceId);
+      }
+
+      // If already activated, hide auth screen immediately
+      if (localStorage.getItem('activated') === '1') {
+        document.getElementById('auth-screen').style.display = 'none';
+        return;
+      }
+
+      const btn = document.getElementById('auth-btn');
+      const input = document.getElementById('auth-code');
+      const error = document.getElementById('auth-error');
+
+      async function activate() {
+        const code = input.value.trim().toUpperCase();
+        if (!code) return;
+        btn.disabled = true;
+        btn.textContent = '...';
+        error.textContent = '';
+        try {
+          const res = await fetch(`${WORKER}/activate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, deviceId })
+          });
+          const data = await res.json();
+          if (data.success) {
+            localStorage.setItem('activated', '1');
+            document.getElementById('auth-screen').style.display = 'none';
+          } else {
+            error.textContent = data.message === 'Code already used on another device'
+              ? 'This code is already used on another device.'
+              : 'Invalid code. Please try again.';
+            btn.disabled = false;
+            btn.textContent = 'Continue';
+          }
+        } catch(e) {
+          error.textContent = 'Network error. Please try again.';
+          btn.disabled = false;
+          btn.textContent = 'Continue';
+        }
+      }
+
+      btn.addEventListener('click', activate);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') activate(); });
+    })();
+  </script>
   <!-- Cloudflare Web Analytics -->
   <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "22cef7a5700544b69ed864bc848f5982"}'></script>
   <!-- End Cloudflare Web Analytics -->
