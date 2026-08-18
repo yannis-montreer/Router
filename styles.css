@@ -1345,6 +1345,7 @@ ul li::before {
 
 /* iOS: increase tabs-h to account for the floating pill + bottom gap */
 .ios { --tabs-h: calc(84px + env(safe-area-inset-bottom, 0px)); }
+.ios .view { height: 100dvh !important; }
 
 /* =============================================================
    iOS-ONLY — FLOATING PILL TAB BAR
@@ -1357,7 +1358,7 @@ ul li::before {
   transform: translateX(-50%) !important;
   bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
   border-radius: 100px !important;
-  background: rgba(38, 38, 46, 0.72) !important;
+  background: rgba(38, 38, 46, 0.40) !important;
   -webkit-backdrop-filter: blur(24px) saturate(1.8);
   backdrop-filter: blur(24px) saturate(1.8);
   border: 1px solid rgba(255, 255, 255, 0.10) !important;
