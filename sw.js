@@ -1,6 +1,6 @@
 // sw.js — Cache-first service worker for Router PWA
 // Bump CACHE_VERSION when deploying changes (forces old cache to be replaced)
-const CACHE_VERSION = 'router-v2';
+const CACHE_VERSION = 'router-v3';
 
 const APP_SHELL = [
   './',
@@ -19,6 +19,8 @@ const APP_SHELL = [
   './icons/bus.svg',
   './icons/bus2.svg',
   './icons/bus_IOS.svg',
+  './icons/Layers_IOS.svg',
+  './icons/target_IOS.svg',
   './icons/chevron-IOS.svg',
   './icons/ticket_IOS.svg',
   './icons/profile_IOS.svg',
