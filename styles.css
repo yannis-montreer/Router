@@ -1423,6 +1423,14 @@ ul li::before {
   filter: invert(67%) sepia(60%) saturate(500%) hue-rotate(195deg) brightness(105%);
 }
 
+/* Profile topbar: hide overflow row, center title, translucent bg (iOS only) */
+.ios .page-profile .topbar .top-row { display: none !important; }
+.ios .page-profile .topbar {
+  background: rgba(33, 33, 39, 0.40) !important;
+  text-align: center !important;
+}
+.ios .page-profile .title-copy { margin-top: 0 !important; }
+
 /* Profile page: list-row leading icons tinted #2b6cfe (iOS only)
    brightness(0) → black, invert(42%) → dark gray, puis on colore */
 .ios .page-profile .list-row img.icon-24:first-child {
