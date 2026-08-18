@@ -7,6 +7,14 @@
   <link rel="stylesheet" href="styles.css">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
+  <!-- iOS detection: must run before any CSS renders -->
+  <script>
+    (function(){
+      var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (isIOS) document.documentElement.classList.add('ios');
+    })();
+  </script>
   <meta name="theme-color" content="#212127">
   <!-- iOS PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
