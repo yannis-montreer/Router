@@ -761,8 +761,8 @@ function renderTravel(){
         try { geo.trigger(); } catch (e) { /* ignore if permissions not granted yet */ }
       });
 
-      // iOS: inject custom map control buttons (Layers + Target)
-      if (document.documentElement.classList.contains('ios')) {
+      // Inject custom map control buttons (Layers + Target) — all platforms
+      {
         const travelRoot = document.querySelector('.travel-root');
         if (travelRoot && !document.getElementById('iosMapControls')) {
           const ctrl = document.createElement('div');
