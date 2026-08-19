@@ -1663,7 +1663,13 @@ async function renderProfileInfo(){
 
         let pressTimer = null;
 
-        const startPress = () => {
+        // Prevent iOS text selection on long press
+        row.style.userSelect = 'none';
+        row.style.webkitUserSelect = 'none';
+
+        const startPress = (e) => {
+          // Prevent iOS callout / text selection menu
+          e.preventDefault();
           pressTimer = setTimeout(() => {
             pressTimer = null;
             const current = document.getElementById(valId)?.textContent.trim() || '';
@@ -1690,7 +1696,7 @@ async function renderProfileInfo(){
           if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
         };
 
-        row.addEventListener('touchstart',  startPress,  { passive: true });
+        row.addEventListener('touchstart',  startPress,  { passive: false });
         row.addEventListener('touchend',    cancelPress, { passive: true });
         row.addEventListener('touchcancel', cancelPress, { passive: true });
         row.addEventListener('touchmove',   cancelPress, { passive: true });
