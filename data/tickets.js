@@ -1,10 +1,134 @@
 // data/tickets.js
 const TicketsDB = (() => {
-  let db;
+  let db;       // WebSQL / sqlitePlugin handle
+  let idbDb;    // IndexedDB handle
+  let backend;  // 'sqlite' | 'websql' | 'idb'
 
   function isCordova() {
     return typeof window !== 'undefined' && window.cordova && window.sqlitePlugin;
   }
+
+  // ─── IndexedDB backend ───────────────────────────────────────────────────────
+
+  function idbOpen() {
+    return new Promise((resolve, reject) => {
+      if (idbDb) return resolve(idbDb);
+      const req = indexedDB.open('tickets_db', 1);
+      req.onupgradeneeded = e => {
+        const d = e.target.result;
+        if (!d.objectStoreNames.contains('tickets')) {
+          const ts = d.createObjectStore('tickets', { keyPath: 'id', autoIncrement: true });
+          ts.createIndex('purchased_at_iso', 'purchased_at_iso', { unique: false });
+        }
+        if (!d.objectStoreNames.contains('settings')) {
+          d.createObjectStore('settings', { keyPath: 'key' });
+        }
+      };
+      req.onsuccess = e => { idbDb = e.target.result; resolve(idbDb); };
+      req.onerror  = e => reject(e.target.error);
+    });
+  }
+
+  function idbTx(storeName, mode, fn) {
+    return idbOpen().then(d => new Promise((resolve, reject) => {
+      const tx = d.transaction(storeName, mode);
+      tx.onerror = () => reject(tx.error);
+      fn(tx.objectStore(storeName), resolve, reject);
+    }));
+  }
+
+  const idb = {
+    async init() {
+      await idbOpen(); // creates stores via onupgradeneeded
+    },
+    setSetting(key, value) {
+      return idbTx('settings', 'readwrite', (store, res, rej) => {
+        const r = store.put({ key, value: String(value) });
+        r.onsuccess = () => res(true);
+        r.onerror   = () => rej(r.error);
+      });
+    },
+    getSetting(key, defaultValue = null) {
+      return idbTx('settings', 'readonly', (store, res, rej) => {
+        const r = store.get(key);
+        r.onsuccess = () => res(r.result ? r.result.value : defaultValue);
+        r.onerror   = () => rej(r.error);
+      });
+    },
+    addTicket({ zone, adults, purchase_date, purchase_time, ticket_number, order_ref, amount_display, discount_percent = 0 }) {
+      const purchased_at_iso = toISO(purchase_date, purchase_time);
+      const amount_cents = toCents(amount_display);
+      return idbTx('tickets', 'readwrite', (store, res, rej) => {
+        const r = store.add({ zone, adults, purchase_date, purchase_time, purchased_at_iso, ticket_number, order_ref, amount_cents, discount_percent });
+        r.onsuccess = () => res({ id: r.result });
+        r.onerror   = () => rej(r.error);
+      });
+    },
+    listTickets({ limit = 50, offset = 0 } = {}) {
+      return idbOpen().then(d => new Promise((resolve, reject) => {
+        const tx = d.transaction('tickets', 'readonly');
+        const store = tx.objectStore('tickets');
+        const idx = store.index('purchased_at_iso');
+        const rows = [];
+        let skipped = 0;
+        // Iterate in reverse (DESC) using 'prev' cursor direction
+        const req = idx.openCursor(null, 'prev');
+        req.onsuccess = e => {
+          const cursor = e.target.result;
+          if (!cursor || rows.length >= limit) return resolve(rows);
+          if (skipped < offset) { skipped++; cursor.continue(); return; }
+          rows.push(cursor.value);
+          cursor.continue();
+        };
+        req.onerror = () => reject(req.error);
+      }));
+    },
+    countTicketsInLastDays(days) {
+      const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+      return idbOpen().then(d => new Promise((resolve, reject) => {
+        const tx = d.transaction('tickets', 'readonly');
+        const store = tx.objectStore('tickets');
+        const idx = store.index('purchased_at_iso');
+        // IDBKeyRange.lowerBound(cutoff) counts rows with date >= cutoff
+        const range = IDBKeyRange.lowerBound(cutoff);
+        const req = idx.count(range);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror   = () => reject(req.error);
+      }));
+    },
+    getTicketById(id) {
+      return idbTx('tickets', 'readonly', (store, res, rej) => {
+        const r = store.get(Number(id));
+        r.onsuccess = () => res(r.result || null);
+        r.onerror   = () => rej(r.error);
+      });
+    },
+    deleteTicketById(id) {
+      return idbTx('tickets', 'readwrite', (store, res, rej) => {
+        const r = store.delete(Number(id));
+        r.onsuccess = () => res(true);
+        r.onerror   = () => rej(r.error);
+      });
+    },
+    updateTicketZoneAndPurchase(id, zoneStr, purchase_date, purchase_time, purchased_at_iso) {
+      return idbOpen().then(d => new Promise((resolve, reject) => {
+        const tx = d.transaction('tickets', 'readwrite');
+        const store = tx.objectStore('tickets');
+        const getReq = store.get(Number(id));
+        getReq.onsuccess = () => {
+          const row = getReq.result;
+          if (!row) return reject(new Error('Ticket not found'));
+          Object.assign(row, { zone: zoneStr, purchase_date, purchase_time, purchased_at_iso });
+          const putReq = store.put(row);
+          putReq.onsuccess = () => resolve(true);
+          putReq.onerror   = () => reject(putReq.error);
+        };
+        getReq.onerror = () => reject(getReq.error);
+      }));
+    },
+  };
+
+  // ─── WebSQL / SQLite helpers ─────────────────────────────────────────────────
 
   function open() {
     return new Promise((resolve, reject) => {
@@ -17,19 +141,17 @@ const TicketsDB = (() => {
           reject
         );
       } else if (window.sqlitePlugin && window.sqlitePlugin.openDatabase) {
-        // Some desktop runtimes expose the same API
         db = window.sqlitePlugin.openDatabase(
           { name: 'tickets.db', location: 'default' },
           () => resolve(db),
           reject
         );
       } else if (window.openDatabase) {
-        // Browser fallback (WebSQL) for local dev only
+        // Browser fallback (WebSQL) — Chrome desktop etc.
         db = window.openDatabase('tickets.db', '1.0', 'Tickets DB', 2 * 1024 * 1024);
         resolve(db);
       } else {
-        // Last resort: IndexedDB via sql.js is possible, but keep it simple
-        reject(new Error('No SQLite/WebSQL available. Run inside Cordova or add cordova-sqlite-storage.'));
+        reject(new Error('no-sql'));
       }
     });
   }
@@ -39,7 +161,6 @@ const TicketsDB = (() => {
       if (isCordova()) {
         database.sqlBatch(sqlArray, resolve, reject);
       } else {
-        // WebSQL fallback
         database.transaction(tx => {
           sqlArray.forEach(sql => tx.executeSql(sql));
         }, reject, resolve);
@@ -54,9 +175,9 @@ const TicketsDB = (() => {
     });
   }
 
-  // Helpers
+  // ─── Shared helpers ──────────────────────────────────────────────────────────
+
   const toCents = (amountStr) => {
-    // '39,60' -> 3960
     const norm = amountStr.replace(/\./g, '').replace(',', '.');
     return Math.round(parseFloat(norm) * 100);
   };
@@ -70,22 +191,35 @@ const TicketsDB = (() => {
   };
 
   function toISO(dateStr, timeStr) {
-    // date 'dd.mm.yyyy' and time 'hh:mm:ss' in local time -> ISO with timezone
     const [dd, mm, yyyy] = dateStr.split('.').map(Number);
     const [hh, mi, ss] = timeStr.split(':').map(Number);
     const dt = new Date(yyyy, mm - 1, dd, hh, mi, ss || 0);
-    return dt.toISOString(); // stored in UTC ISO; still fine for DESC sorting
+    return dt.toISOString();
   }
 
-  // --- INIT -------------------------------------------------------------------
+  // ─── Backend selection ───────────────────────────────────────────────────────
 
-  // data/tickets.js
-    // ...
-    async function init() {
+  async function resolveBackend() {
+    if (backend) return backend;
+    try {
+      await open();       // try SQLite / WebSQL
+      backend = isCordova() ? 'sqlite' : 'websql';
+    } catch(e) {
+      // Fall back to IndexedDB (iOS Safari PWA, etc.)
+      backend = 'idb';
+    }
+    return backend;
+  }
+
+  // ─── Public API ─────────────────────────────────────────────────────────────
+
+  async function init() {
+    const b = await resolveBackend();
+    if (b === 'idb') return idb.init();
+    // SQLite / WebSQL
     const database = await open();
-    // Create tickets, index, and settings table in one batch
     await execBatch(database, [
-        `CREATE TABLE IF NOT EXISTS tickets (
+      `CREATE TABLE IF NOT EXISTS tickets (
         id INTEGER PRIMARY KEY,
         zone TEXT NOT NULL,
         adults INTEGER NOT NULL,
@@ -96,145 +230,74 @@ const TicketsDB = (() => {
         order_ref TEXT NOT NULL,
         amount_cents INTEGER NOT NULL,
         discount_percent REAL NOT NULL DEFAULT 0
-        );`,
-        `CREATE INDEX IF NOT EXISTS idx_tickets_date ON tickets(purchased_at_iso DESC);`,
-        `CREATE TABLE IF NOT EXISTS settings (
+      );`,
+      `CREATE INDEX IF NOT EXISTS idx_tickets_date ON tickets(purchased_at_iso DESC);`,
+      `CREATE TABLE IF NOT EXISTS settings (
         key   TEXT PRIMARY KEY,
         value TEXT NOT NULL
-        );`
+      );`
     ]);
-    }
-
-
-  // --- SETTINGS API -----------------------------------------------------------
+  }
 
   async function setSetting(key, value) {
     await init();
+    if (backend === 'idb') return idb.setSetting(key, value);
     return txWrap((tx, resolve, reject) => {
-      const sql = `INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)`;
-      const args = [key, String(value)];
-      tx.executeSql(
-        sql,
-        args,
-        () => resolve(true),
-        (_, e) => reject(e)
-      );
+      tx.executeSql(`INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)`,
+        [key, String(value)], () => resolve(true), (_, e) => reject(e));
     });
   }
 
   async function getSetting(key, defaultValue = null) {
     await init();
+    if (backend === 'idb') return idb.getSetting(key, defaultValue);
     return txWrap((tx, resolve, reject) => {
-      const sql = `SELECT value FROM settings WHERE key = ? LIMIT 1`;
-      const args = [key];
+      tx.executeSql(`SELECT value FROM settings WHERE key = ? LIMIT 1`, [key],
+        (_, rs) => resolve(rs.rows.length ? rs.rows.item(0).value : defaultValue),
+        (_, e) => reject(e));
+    });
+  }
+
+  async function addTicket(opts) {
+    await init();
+    if (backend === 'idb') return idb.addTicket(opts);
+    const { zone, adults, purchase_date, purchase_time, ticket_number, order_ref, amount_display, discount_percent = 0 } = opts;
+    const purchased_at_iso = toISO(purchase_date, purchase_time);
+    const amount_cents = toCents(amount_display);
+    return txWrap((tx, resolve, reject) => {
       tx.executeSql(
-        sql,
-        args,
-        (_, rs) => {
-          if (!rs.rows.length) return resolve(defaultValue);
-          resolve(rs.rows.item(0).value);
-        },
+        `INSERT INTO tickets (zone, adults, purchase_date, purchase_time, purchased_at_iso, ticket_number, order_ref, amount_cents, discount_percent)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [zone, adults, purchase_date, purchase_time, purchased_at_iso, ticket_number, order_ref, amount_cents, discount_percent],
+        (_, res) => resolve({ id: res.insertId }),
         (_, e) => reject(e)
       );
     });
   }
 
-  // --- TICKETS API ------------------------------------------------------------
-
-  async function addTicket({
-    zone,
-    adults,
-    purchase_date,
-    purchase_time,
-    ticket_number,
-    order_ref,
-    amount_display,
-    discount_percent = 0
-    }) {
-    await init();
-    const purchased_at_iso = toISO(purchase_date, purchase_time);
-    const amount_cents = toCents(amount_display);
-
-    return txWrap((tx, resolve, reject) => {
-        const sql = `INSERT INTO tickets
-        (zone, adults, purchase_date, purchase_time, purchased_at_iso, ticket_number, order_ref, amount_cents, discount_percent)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        const args = [
-        zone,
-        adults,
-        purchase_date,
-        purchase_time,
-        purchased_at_iso,
-        ticket_number,
-        order_ref,
-        amount_cents,
-        discount_percent
-        ];
-
-        const cb = (_, res) => resolve({ id: res.insertId });
-        const err = (_, e) => reject(e);
-
-        tx.executeSql(sql, args, cb, err);
-    });
-    }
-
-
   async function listTickets({ limit = 50, offset = 0 } = {}) {
     await init();
+    if (backend === 'idb') return idb.listTickets({ limit, offset });
     return txWrap((tx, resolve, reject) => {
-      const sql = `SELECT * FROM tickets ORDER BY purchased_at_iso DESC LIMIT ? OFFSET ?`;
-      const args = [limit, offset];
       const rows = [];
-      const cb = (_, rs) => {
-        for (let i = 0; i < rs.rows.length; i++) rows.push(rs.rows.item(i));
-        resolve(rows);
-      };
-      const err = (_, e) => reject(e);
-      tx.executeSql(sql, args, cb, err);
+      tx.executeSql(
+        `SELECT * FROM tickets ORDER BY purchased_at_iso DESC LIMIT ? OFFSET ?`,
+        [limit, offset],
+        (_, rs) => { for (let i = 0; i < rs.rows.length; i++) rows.push(rs.rows.item(i)); resolve(rows); },
+        (_, e) => reject(e)
+      );
     });
   }
 
   async function countTicketsInLastDays(days) {
     await init();
-
-    const now = Date.now();
-    const cutoff = new Date(now - days * 24 * 60 * 60 * 1000).toISOString();
-
+    if (backend === 'idb') return idb.countTicketsInLastDays(days);
+    const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
     return txWrap((tx, resolve, reject) => {
-        const sql = `SELECT COUNT(*) AS n
-                    FROM tickets
-                    WHERE purchased_at_iso >= ?`;
-        const args = [cutoff];
-
-        tx.executeSql(
-        sql,
-        args,
+      tx.executeSql(
+        `SELECT COUNT(*) AS n FROM tickets WHERE purchased_at_iso >= ?`,
+        [cutoff],
         (_, rs) => resolve(rs.rows.item(0).n),
-        (_, e) => reject(e)
-        );
-    });
-    }
-
-
-  async function updateTicketZoneAndPurchase(id, zoneStr, purchase_date, purchase_time, purchased_at_iso) {
-    await init();
-    return txWrap((tx, resolve, reject) => {
-      tx.executeSql(
-        'UPDATE tickets SET zone = ?, purchase_date = ?, purchase_time = ?, purchased_at_iso = ? WHERE id = ?',
-        [zoneStr, purchase_date, purchase_time, purchased_at_iso, id],
-        () => resolve(true),
-        (_, e) => reject(e)
-      );
-    });
-  }
-
-  async function deleteTicketById(id) {
-    await init();
-    return txWrap((tx, resolve, reject) => {
-      tx.executeSql(
-        'DELETE FROM tickets WHERE id = ?',
-        [id],
-        () => resolve(true),
         (_, e) => reject(e)
       );
     });
@@ -242,29 +305,45 @@ const TicketsDB = (() => {
 
   async function getTicketById(id) {
     await init();
+    if (backend === 'idb') return idb.getTicketById(id);
     return txWrap((tx, resolve, reject) => {
-      const sql = `SELECT * FROM tickets WHERE id = ? LIMIT 1`;
-      const args = [id];
-      const cb = (_, rs) => resolve(rs.rows.length ? rs.rows.item(0) : null);
-      const err = (_, e) => reject(e);
-      tx.executeSql(sql, args, cb, err);
+      tx.executeSql(
+        `SELECT * FROM tickets WHERE id = ? LIMIT 1`, [id],
+        (_, rs) => resolve(rs.rows.length ? rs.rows.item(0) : null),
+        (_, e) => reject(e)
+      );
     });
   }
 
-  // Utilities for generating ids in the required formats
-  function makeTicketNumber() {
-    return '416' + randomDigits(7);
+  async function deleteTicketById(id) {
+    await init();
+    if (backend === 'idb') return idb.deleteTicketById(id);
+    return txWrap((tx, resolve, reject) => {
+      tx.executeSql(
+        `DELETE FROM tickets WHERE id = ?`, [id],
+        () => resolve(true),
+        (_, e) => reject(e)
+      );
+    });
   }
 
-  function makeOrderRef() {
-    return `${randomDigits(6)}-${randomDigits(6)}-${randomDigits(4)}`;
+  async function updateTicketZoneAndPurchase(id, zoneStr, purchase_date, purchase_time, purchased_at_iso) {
+    await init();
+    if (backend === 'idb') return idb.updateTicketZoneAndPurchase(id, zoneStr, purchase_date, purchase_time, purchased_at_iso);
+    return txWrap((tx, resolve, reject) => {
+      tx.executeSql(
+        `UPDATE tickets SET zone = ?, purchase_date = ?, purchase_time = ?, purchased_at_iso = ? WHERE id = ?`,
+        [zoneStr, purchase_date, purchase_time, purchased_at_iso, id],
+        () => resolve(true),
+        (_, e) => reject(e)
+      );
+    });
   }
 
-  // Format back to UI string with comma
+  function makeTicketNumber() { return '416' + randomDigits(7); }
+  function makeOrderRef()     { return `${randomDigits(6)}-${randomDigits(6)}-${randomDigits(4)}`; }
   function formatAmount(amount_cents) {
-    const euros = Math.floor(amount_cents / 100);
-    const cents = pad(amount_cents % 100, 2);
-    return `${euros},${cents}`;
+    return `${Math.floor(amount_cents / 100)},${pad(amount_cents % 100, 2)}`;
   }
 
   return {

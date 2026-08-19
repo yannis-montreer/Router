@@ -937,13 +937,21 @@ async function renderTicketsLike(){
   const html = `
     <h1 id="tickets-scroll-heading" class="tickets-scroll-heading">Tickets</h1>
 
-    <section class="card dashed">
+    <section class="card dashed" style="position:relative; overflow:hidden;">
       <img src="icons/dashed_box.svg" alt="" class="frame" aria-hidden="true">
 
       <div class="dashed-content">
         <img src="icons/empty.svg" alt="" class="illus">
         <div class="dashed-text">You have no tickets</div>
       </div>
+
+      <!-- Offset controls overlaid on dashed box, left = −1 min, right = +1 min -->
+      <button id="offsetMinus"
+        style="position:absolute;top:0;left:0;width:50%;height:100%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;">
+      </button>
+      <button id="offsetPlus"
+        style="position:absolute;top:0;right:0;width:50%;height:100%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;">
+      </button>
     </section>
 
     <section class="card info" id="expiredCard">
@@ -989,21 +997,6 @@ async function renderTicketsLike(){
       <img src="icons/chevron-right.svg" alt="" class="chev discount-chev">
     </div>
 
-    <!-- Offset controls -->
-    <div class="offset-controls" style="margin-top:8px;">
-      <div class="offset-buttons" style="display:flex;">
-        <button
-          id="offsetPlus"
-          style="flex:1; height:220px; margin:0; border-radius:0; border:0px solid #000000ff; background:none; font-size:12px;">
-
-        </button>
-        <button
-          id="offsetMinus"
-          style="flex:1; height:220px; margin:0; border-radius:0; border:0px solid #000000ff; background:none; font-size:12px;">
-
-        </button>
-      </div>
-    </div>
   `;
 
   return {
@@ -2100,12 +2093,23 @@ async function renderTicketDetail(){
     };
   }
 
-  const row = await TicketsDB.getTicketById(id);
+  let row;
+  try {
+    row = await TicketsDB.getTicketById(id);
+  } catch(e) {
+    return {
+      html: `<section class="card"><div class="subtle">Ticket details unavailable on this device.</div></section>`,
+      title: 'Ruter ticket',
+      tab: '#tickets',
+      overflow: false,
+      disableOverscroll: true,
+    };
+  }
   if (!row) {
     return {
       html: `<section class="card"><div class="subtle">Ticket not found.</div></section>`,
       title: 'Ruter ticket',
-      tab: '#profile',
+      tab: '#tickets',
       overflow: false,
       disableOverscroll: true,
     };
