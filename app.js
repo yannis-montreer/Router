@@ -595,11 +595,10 @@ async function render() {
 
   // --- handle overflow icon visibility ---
   const overflowBtn = document.getElementById('overflow')
-  const overflowIcon = overflowBtn ? overflowBtn.querySelector('img') : null
-  if (overflowIcon) {
-    // overflow only on the main tickets home, never on ticket sub-pages
+  if (overflowBtn) {
+    // overflow button (circle + icon) only on the main tickets home
     const onTickets = location.hash === '#tickets'
-    overflowIcon.style.display = onTickets ? 'block' : 'none'
+    overflowBtn.style.display = onTickets ? '' : 'none'
   }
 
 
