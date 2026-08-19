@@ -1060,7 +1060,7 @@ ul li::before {
 }
 
 .exp-ticket-title { font-size: 20px; line-height: 1.12; font-weight: 500; margin: 0 0 0.8vh 0; }
-.exp-meta-item    { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 450; color: #b3b2bd; }
+.exp-meta-item    { display: inline-flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 450; color: #fbfbfc; }
 
 .exp-kv {
   display: grid;
