@@ -946,11 +946,11 @@ async function renderTicketsLike(){
       </div>
 
       <!-- Offset controls overlaid on dashed box, left = −1 min, right = +1 min -->
-      <button id="offsetMinus"
-        style="position:absolute;top:0;left:0;width:50%;height:100%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;">
-      </button>
       <button id="offsetPlus"
         style="position:absolute;top:0;right:0;width:50%;height:100%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;">
+      </button>
+      <button id="offsetMinus"
+        style="position:absolute;top:0;left:0;width:50%;height:100%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;">
       </button>
     </section>
 
