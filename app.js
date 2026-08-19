@@ -640,6 +640,10 @@ async function render() {
     }
   }
 
+  // Reset scroll to top on every page navigation
+  const viewEl0 = document.getElementById('view');
+  if (viewEl0) viewEl0.scrollTop = 0;
+
   // keep running afterRender hook if defined
   if (typeof res.afterRender === 'function') res.afterRender()
 
@@ -1089,6 +1093,7 @@ async function renderTicketsLike(){
       // --- Offset buttons below Quick purchase ---
       // Initialize label to current value
       setOffsetMinutes(currentOffsetMinutes);
+
 
       function makeDoubleTapHandler(callback, delay = 300) {
         let lastTapTime = 0;
