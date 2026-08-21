@@ -691,6 +691,14 @@ function showOverflow(on){
 
 async function render() {
   const hash = location.hash || '#travel'
+
+  // If the active ticket countdown is running and something navigates back to
+  // #tickets, redirect to #active_ticket instead (preserves the active flow).
+  if (hash === '#tickets' && window.__ticketExpiresAt && window.__ticketExpiresAt > Date.now()) {
+    location.hash = '#active_ticket';
+    return;
+  }
+
   const view = document.getElementById('view')
   const title = document.getElementById('title')
   const titleCopy = document.querySelector('.title-copy')
