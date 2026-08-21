@@ -2233,13 +2233,13 @@ async function renderActiveTicket() {
 
     <!-- Active ticket card -->
     <section class="card atc-card">
-      <img src="icons/buyticket.svg" class="atc-illus" alt="">
+      <img src="icons/reispick.svg" class="atc-illus" alt="">
       <div class="atc-label">Single ticket</div>
       <div class="atc-time">4 minutes left</div>
       <div class="atc-meta">
-        <div class="atc-row"><img src="icons/happy2.svg" class="icon-20" alt="">${adultsLabel}</div>
+        <div class="atc-row"><img src="icons/happy.svg" class="icon-20" alt="">${adultsLabel}</div>
         <div class="atc-row"><img src="icons/zone.svg" class="icon-20" alt="">${zoneLabel}</div>
-        ${discountPct > 0 ? `<div class="atc-row"><img src="icons/buyticket_reis.svg" class="icon-20" alt="">${discountPct}% discount</div>` : ''}
+        <div class="atc-row"><img src="icons/ticket.svg" class="icon-20" alt="">${discountPct}% discount</div>
       </div>
       <div class="atc-footer">
         <a class="atc-detail-link" id="atcDetailLink">Ticket details
