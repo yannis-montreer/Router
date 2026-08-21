@@ -174,7 +174,9 @@ document.addEventListener('deviceready', async () => {
   try {
     const saved = await TicketsDB.getSetting('offsetMinutes', DEFAULT_OFFSET_MINUTES);
     const n = Number(saved);
-    const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : DEFAULT_OFFSET_MINUTES;
+    // Force reset to DEFAULT if out of range OR above the default (migration from old 61/62 values)
+    const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES && n <= DEFAULT_OFFSET_MINUTES) ? n : DEFAULT_OFFSET_MINUTES;
+    if (target !== n) await TicketsDB.setSetting('offsetMinutes', target).catch(() => {});
     setOffsetMinutes(target);
   } catch (err) {
     console.error('Could not load offsetMinutes from DB', err);
