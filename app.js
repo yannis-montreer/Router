@@ -2217,16 +2217,18 @@ async function renderActiveTicket() {
   let rows = [];
   try { rows = await TicketsDB.listTickets({ limit: 1 }); } catch(e) {}
 
-  let zoneLabel   = 'Zone 1 and 2V';
-  let adultsLabel = '1 adult';
-  let discountPct = 0;
+  // Zone: prefer confirmed selection, fall back to last ticket in DB
+  const zoneLabel = (window.__confirmedZones && window.__confirmedZones.size > 0)
+    ? fmtConfirmedZones(window.__confirmedZones)
+    : (rows && rows.length) ? fmtZone(rows[0].zone) : 'Zone 1';
 
-  if (rows && rows.length) {
-    const t = rows[0];
-    zoneLabel   = fmtZone(t.zone);
-    adultsLabel = `${t.adults} adult${t.adults > 1 ? 's' : ''}`;
-    discountPct = Number(t.discount_percent) || 0;
-  }
+  const adultsLabel = (rows && rows.length)
+    ? `${rows[0].adults} adult${rows[0].adults > 1 ? 's' : ''}`
+    : '1 adult';
+
+  // Discount: next Reis discount (same calculation as tickets page)
+  let discountPct = 0;
+  try { discountPct = await getNextDiscountPercent(); } catch(e) {}
 
   const html = `
     <h1 id="tickets-scroll-heading" class="tickets-scroll-heading">Tickets</h1>
