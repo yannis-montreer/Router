@@ -1557,13 +1557,10 @@ ul li::before {
 }
 .atc-illus {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  height: 90%;
-  width: auto;
-  max-width: 38%;
-  object-fit: contain;
-  object-position: bottom right;
+  right: 4px;
+  top: 12px;
+  width: clamp(90px, 30vw, 120px);
+  height: auto;
   pointer-events: none;
 }
 .atc-label {
@@ -1577,7 +1574,7 @@ ul li::before {
   font-weight: 700;
   color: #fff;
   line-height: 1.15;
-  padding-right: 38%;   /* keep text away from illustration */
+  padding-right: clamp(95px, 32vw, 125px); /* keep text away from illustration */
   margin-bottom: 12px;
 }
 .atc-meta {
