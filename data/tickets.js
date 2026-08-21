@@ -110,7 +110,7 @@ const TicketsDB = (() => {
         r.onerror   = () => rej(r.error);
       });
     },
-    updateTicketZoneAndPurchase(id, zoneStr, purchase_date, purchase_time, purchased_at_iso) {
+    updateTicketZoneAndPurchase(id, zoneStr, purchase_date, purchase_time, purchased_at_iso, amount_cents, discount_percent) {
       return idbOpen().then(d => new Promise((resolve, reject) => {
         const tx = d.transaction('tickets', 'readwrite');
         const store = tx.objectStore('tickets');
@@ -119,6 +119,8 @@ const TicketsDB = (() => {
           const row = getReq.result;
           if (!row) return reject(new Error('Ticket not found'));
           Object.assign(row, { zone: zoneStr, purchase_date, purchase_time, purchased_at_iso });
+          if (amount_cents    != null) row.amount_cents    = amount_cents;
+          if (discount_percent != null) row.discount_percent = discount_percent;
           const putReq = store.put(row);
           putReq.onsuccess = () => resolve(true);
           putReq.onerror   = () => reject(putReq.error);
@@ -327,13 +329,18 @@ const TicketsDB = (() => {
     });
   }
 
-  async function updateTicketZoneAndPurchase(id, zoneStr, purchase_date, purchase_time, purchased_at_iso) {
+  async function updateTicketZoneAndPurchase(id, zoneStr, purchase_date, purchase_time, purchased_at_iso, amount_cents, discount_percent) {
     await init();
-    if (backend === 'idb') return idb.updateTicketZoneAndPurchase(id, zoneStr, purchase_date, purchase_time, purchased_at_iso);
+    if (backend === 'idb') return idb.updateTicketZoneAndPurchase(id, zoneStr, purchase_date, purchase_time, purchased_at_iso, amount_cents, discount_percent);
+    // Build SQL dynamically — price fields are optional
+    const hasCents    = amount_cents    != null;
+    const hasDiscount = discount_percent != null;
+    const extraCols   = (hasCents ? ', amount_cents = ?' : '') + (hasDiscount ? ', discount_percent = ?' : '');
+    const extraVals   = [...(hasCents ? [amount_cents] : []), ...(hasDiscount ? [discount_percent] : [])];
     return txWrap((tx, resolve, reject) => {
       tx.executeSql(
-        `UPDATE tickets SET zone = ?, purchase_date = ?, purchase_time = ?, purchased_at_iso = ? WHERE id = ?`,
-        [zoneStr, purchase_date, purchase_time, purchased_at_iso, id],
+        `UPDATE tickets SET zone = ?, purchase_date = ?, purchase_time = ?, purchased_at_iso = ?${extraCols} WHERE id = ?`,
+        [zoneStr, purchase_date, purchase_time, purchased_at_iso, ...extraVals, id],
         () => resolve(true),
         (_, e) => reject(e)
       );

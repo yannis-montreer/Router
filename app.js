@@ -324,6 +324,24 @@ if (!window.cordova) {
 }
 
 // Returns the discount % that will apply on the next purchase
+/** Update zone + purchase time + recalculate price for a ticket already in DB */
+async function updateTicketZoneAndPrice(id, zoneStr, purchase_date, purchase_time, purchased_at_iso) {
+  const zoneCount = zoneStr.split(',').filter(Boolean).length || 1;
+  const zoneCol   = 'zone' + Math.min(zoneCount, 5);
+  const countLast30   = await TicketsDB.countTicketsInLastDays(30);
+  const priceRow      = await PriceDB.getPricesForTicketCount(countLast30);
+  let amount_cents    = 3960; // fallback 39,60
+  let discount_percent = 0;
+  if (priceRow) {
+    discount_percent = Number(priceRow.discount_percent) || 0;
+    amount_cents     = Math.round(Number(priceRow[zoneCol]) * 100);
+  }
+  return TicketsDB.updateTicketZoneAndPurchase(
+    id, zoneStr, purchase_date, purchase_time, purchased_at_iso,
+    amount_cents, discount_percent
+  );
+}
+
 async function getNextDiscountPercent() {
   const countLast30 = await TicketsDB.countTicketsInLastDays(30);
   const priceRow = await PriceDB.getPricesForTicketCount(countLast30 + 1);
@@ -476,7 +494,7 @@ function startTicketCountdown(expiresAtMs) {
             const durationMin   = ticketDurationMs(zoneStr) / 60000;
             const expiredAgoMin = currentOffsetMinutes - 60;
             const purchasedAt   = new Date(Date.now() - (durationMin + expiredAgoMin) * 60 * 1000);
-            await TicketsDB.updateTicketZoneAndPurchase(
+            await updateTicketZoneAndPrice(
               ticket.id, zoneStr,
               fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
             );
@@ -598,7 +616,7 @@ function bindTabs(){
                 const durationMin   = ticketDurationMs(zoneStr) / 60000;
                 const expiredAgoMin = currentOffsetMinutes - 60;
                 const purchasedAt   = new Date(Date.now() - (durationMin + expiredAgoMin) * 60 * 1000);
-                await TicketsDB.updateTicketZoneAndPurchase(
+                await updateTicketZoneAndPrice(
                   ticket.id, zoneStr,
                   fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
                 );
@@ -618,7 +636,7 @@ function bindTabs(){
                   : ticket.zone;
                 const expiresAtMs = Date.now() + 4 * 60 * 1000;
                 const purchasedAt = new Date(expiresAtMs - ticketDurationMs(zoneStr));
-                await TicketsDB.updateTicketZoneAndPurchase(
+                await updateTicketZoneAndPrice(
                   ticket.id, zoneStr,
                   fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
                 );
@@ -2048,12 +2066,9 @@ function renderZones(){
             const durationMin   = ticketDurationMs(zoneStr) / 60000;
             const expiredAgoMin = currentOffsetMinutes - 60; // e.g. 61-60 = 1
             const newPurchase   = new Date(Date.now() - (durationMin + expiredAgoMin) * 60 * 1000);
-            await TicketsDB.updateTicketZoneAndPurchase(
-              latestRows[0].id,
-              zoneStr,
-              fmtDate(newPurchase),
-              fmtTime(newPurchase),
-              newPurchase.toISOString()
+            await updateTicketZoneAndPrice(
+              latestRows[0].id, zoneStr,
+              fmtDate(newPurchase), fmtTime(newPurchase), newPurchase.toISOString()
             );
           }
         } catch (err) {
