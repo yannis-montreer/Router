@@ -98,8 +98,8 @@ ul li::before {
 .topbar.mode-expired .title-copy     { display: none; }
 .topbar.mode-expired .top-row        { padding-top: 0; }
 .topbar.mode-expired #title          { margin-top: 0; padding-top: 0; }
-/* Back-button pages: sit the header tighter to the status bar */
-.topbar.mode-expired                 { padding-top: 8px; padding-bottom: 1.6vh; }
+/* Back-button pages: respect safe-area (Dynamic Island / notch on iPhone) */
+.topbar.mode-expired                 { padding-top: calc(env(safe-area-inset-top, 0px) + 8px); padding-bottom: 1.6vh; }
 
 /* =============================================================
    SHARED LAYOUT — MAIN VIEW
@@ -1502,5 +1502,196 @@ ul li::before {
 .ios .log-out {
   background: #34353a !important;
   color: #f14341 !important;
+}
+
+/* =============================================================
+   TICKET CAROUSEL
+   ============================================================= */
+.ticket-carousel {
+  overflow: hidden;
+  margin: 0;          /* inherits page padding from .view */
+}
+.carousel-track {
+  display: flex;
+  width: 200%;        /* 2 slides side by side */
+  will-change: transform;
+}
+.carousel-slide {
+  width: 50%;         /* 50% of 200% = 100% of the carousel */
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+/* Dots indicator */
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 10px 0 4px;
+}
+.cdot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  transition: background 0.2s;
+}
+.cdot--active {
+  background: #fff;
+}
+
+/* Prevent text selection while dragging */
+.carousel-track { user-select: none; -webkit-user-select: none; }
+
+/* =============================================================
+   ACTIVE TICKET CARD (carousel slide 1)
+   ============================================================= */
+.atc-card {
+  position: relative;
+  background: #1e3829 !important;
+  overflow: hidden;
+  padding: 20px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.atc-illus {
+  position: absolute;
+  right: -8px;
+  top: -4px;
+  width: clamp(80px, 28vw, 120px);
+  opacity: 0.92;
+  pointer-events: none;
+}
+.atc-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.65);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.atc-time {
+  font-size: clamp(22px, 7vw, 30px);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.15;
+  padding-right: clamp(80px, 28vw, 120px); /* avoid illus overlap */
+}
+.atc-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+.atc-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+}
+.atc-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+.atc-detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #6aadff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Actions row below the active ticket card */
+.atc-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+.btn-inspection {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #3b7ff7;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 100px;
+  padding: 14px 20px;
+  cursor: pointer;
+}
+.atc-buy-new {
+  flex: 1;
+  font-size: 14px !important;
+  padding: 14px 16px !important;
+}
+
+/* icon-16 utility */
+.icon-16 { width: 16px; height: 16px; }
+
+/* =============================================================
+   ACTIVE TICKET DETAIL PAGE  (#active_ticket)
+   ============================================================= */
+.atd-card {
+  display: flex;
+  gap: 0;
+  padding: 0 !important;
+  overflow: hidden;
+}
+.atd-bar {
+  width: 5px;
+  flex-shrink: 0;
+  background: #3ecf6e;
+  border-radius: 0;
+}
+.atd-content {
+  padding: 18px 18px 18px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.atd-eyebrow {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 500;
+}
+.atd-time {
+  font-size: clamp(22px, 7vw, 30px);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin: 4px 0 8px;
+}
+.atd-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.atd-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+}
+.atd-list {
+  margin-top: 2vh;
+}
+.atd-inspection-wrap {
+  padding: 2vh 0 0;
+}
+.btn-inspection--full {
+  width: 100%;
+  border-radius: 14px;
+  padding: 16px 20px;
+  font-size: 17px;
+  justify-content: center;
 }
 

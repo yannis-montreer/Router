@@ -52,16 +52,6 @@
 </head>
 <body>
 
-  <!-- Auth screen — hidden once activated -->
-  <div id="auth-screen">
-    <img src="icons/ruter_logo_red.svg" alt="">
-    <h2>Welcome</h2>
-    <p>Enter your invitation code to access the app.</p>
-    <input id="auth-code" type="text" placeholder="CODE" maxlength="12" autocomplete="off" autocorrect="off" spellcheck="false">
-    <div id="auth-error"></div>
-    <button id="auth-btn">Continue</button>
-  </div>
-
   <header class="topbar">
     <div class="top-row">
       <h1 id="title"></h1>
@@ -106,61 +96,6 @@
   <script src="cordova.js"></script>
   <script src="ticketsView.js"></script>
   <script src="app.bundle.js"></script>
-  <script>
-    (function() {
-      const WORKER = 'https://router-auth.jeanmichel-katze.workers.dev';
-
-      // Generate or retrieve a stable device ID
-      let deviceId = localStorage.getItem('deviceId');
-      if (!deviceId) {
-        deviceId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now();
-        localStorage.setItem('deviceId', deviceId);
-      }
-
-      // If already activated, hide auth screen immediately
-      if (localStorage.getItem('activated') === '1') {
-        document.getElementById('auth-screen').style.display = 'none';
-        return;
-      }
-
-      const btn = document.getElementById('auth-btn');
-      const input = document.getElementById('auth-code');
-      const error = document.getElementById('auth-error');
-
-      async function activate() {
-        const code = input.value.trim().toUpperCase();
-        if (!code) return;
-        btn.disabled = true;
-        btn.textContent = '...';
-        error.textContent = '';
-        try {
-          const res = await fetch(`${WORKER}/activate`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code, deviceId })
-          });
-          const data = await res.json();
-          if (data.success) {
-            localStorage.setItem('activated', '1');
-            document.getElementById('auth-screen').style.display = 'none';
-          } else {
-            error.textContent = data.message === 'Code already used on another device'
-              ? 'This code is already used on another device.'
-              : 'Invalid code. Please try again.';
-            btn.disabled = false;
-            btn.textContent = 'Continue';
-          }
-        } catch(e) {
-          error.textContent = 'Network error. Please try again.';
-          btn.disabled = false;
-          btn.textContent = 'Continue';
-        }
-      }
-
-      btn.addEventListener('click', activate);
-      input.addEventListener('keydown', e => { if (e.key === 'Enter') activate(); });
-    })();
-  </script>
   <!-- Cloudflare Web Analytics -->
   <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "22cef7a5700544b69ed864bc848f5982"}'></script>
   <!-- End Cloudflare Web Analytics -->
