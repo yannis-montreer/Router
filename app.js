@@ -2424,7 +2424,12 @@ async function renderActiveTicketDetail() {
 
       const showReceipt = document.getElementById('atdShowReceipt');
       if (showReceipt) showReceipt.addEventListener('click', () => {
-        // inactive for now — will wire to receipt detail later
+        if (rows && rows.length) {
+          window.__selectedTicketId = rows[0].id;
+          window.__receiptBack = { hash: '#active_ticket_detail' };
+          window.__phDefaultTab = 'receipts';
+          location.hash = '#receipt_detail';
+        }
       });
       // Inspection: inactive for now
     }
