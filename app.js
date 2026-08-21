@@ -591,7 +591,13 @@ function bindTabs(){
         return;
       }
       lastTap = now;
-      location.hash = btn.dataset.route;
+      // If the active ticket countdown is still running, single-tap on Tickets
+      // keeps the user in the active ticket flow (only double-tap or expiry can exit)
+      if (isTicketsTab && window.__ticketExpiresAt && window.__ticketExpiresAt > Date.now()) {
+        location.hash = '#active_ticket';
+      } else {
+        location.hash = btn.dataset.route;
+      }
     });
   })
 }
