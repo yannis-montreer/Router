@@ -1684,6 +1684,41 @@ ul li::before {
 }
 .atd-list {
   margin-top: 2vh;
+  padding: 0 !important;
+  overflow: hidden;
+}
+.atd-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 500;
+}
+.atd-list-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 18px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+}
+.atd-list-row--inactive {
+  opacity: 0.45;
+  cursor: default;
+  pointer-events: none;
+}
+.atd-chev {
+  margin-left: auto;
+  opacity: 0.45;
+}
+.atd-divider {
+  height: 1px;
+  background: var(--border, rgba(255,255,255,0.1));
+  margin: 0 18px;
 }
 .atd-inspection-wrap {
   padding: 2vh 0 0;

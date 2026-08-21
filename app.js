@@ -414,6 +414,7 @@ const routes = {
   '#ticket_detail': renderTicketDetail,
   '#receipt_detail': renderReceiptDetail,
   '#active_ticket': renderActiveTicket,
+  '#active_ticket_detail': renderActiveTicketDetail,
   '#reis': renderReis,
   '#intro_reis': renderIntroReis,
   '#quick_purchase': renderQuickPurchase,
@@ -2345,6 +2346,81 @@ async function renderActiveTicket() {
       if (qpZoneLabel && window.__confirmedZones && window.__confirmedZones.size > 0) {
         qpZoneLabel.textContent = `1 Adult, ${fmtConfirmedZones(window.__confirmedZones)}`;
       }
+    }
+  };
+}
+
+async function renderActiveTicketDetail() {
+  let rows = [];
+  try { rows = await TicketsDB.listTickets({ limit: 1 }); } catch(e) {}
+
+  const zoneLabel = (window.__confirmedZones && window.__confirmedZones.size > 0)
+    ? fmtConfirmedZones(window.__confirmedZones)
+    : (rows && rows.length) ? fmtZone(rows[0].zone) : 'Zone 1';
+
+  const adultsLabel = (rows && rows.length)
+    ? `${rows[0].adults} adult${rows[0].adults > 1 ? 's' : ''}`
+    : '1 adult';
+
+  let discountPct = 0;
+  try { discountPct = await getNextDiscountPercent(); } catch(e) {}
+
+  // Static expiry for now
+  const expiresLabel = 'Expires 19/08/2026 at 23:41';
+
+  const html = `
+    <section class="atd-card card">
+      <div class="atd-bar"></div>
+      <div class="atd-content">
+        <div class="atd-label">Single ticket</div>
+        <div class="atd-time">4 minutes left</div>
+        <div class="atd-meta">
+          <div class="atd-row"><img src="icons/happy.svg" class="icon-20" alt="">${adultsLabel}</div>
+          <div class="atd-row"><img src="icons/zone.svg" class="icon-20" alt="">${zoneLabel}</div>
+          <div class="atd-row"><img src="icons/ticket.svg" class="icon-20" alt="">${discountPct}% discount</div>
+          <div class="atd-row"><img src="icons/hourglass.svg" class="icon-20" alt="">${expiresLabel}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Receipt / Notifications rows -->
+    <section class="atd-list card">
+      <button class="atd-list-row" id="atdShowReceipt">
+        <img src="icons/receipt.svg" class="icon-20" alt="">
+        <span>Show receipt</span>
+        <img src="icons/chevron-right.svg" class="icon-16 atd-chev" alt="">
+      </button>
+      <div class="atd-divider"></div>
+      <div class="atd-list-row atd-list-row--inactive">
+        <img src="icons/bell.svg" class="icon-20" alt="">
+        <span>Edit notifications</span>
+        <img src="icons/chevron-right.svg" class="icon-16 atd-chev" alt="">
+      </div>
+    </section>
+
+    <!-- Inspection button -->
+    <div class="atd-inspection-wrap">
+      <button class="btn-inspection btn-inspection--full" id="atdInspectionBtn">
+        <img src="icons/qr.svg" class="icon-20" onerror="this.style.display='none'" alt="">
+        Inspection
+      </button>
+    </div>
+  `;
+
+  return {
+    html,
+    title: 'Your ticket',
+    tab: '#tickets',
+    overflow: false,
+    disableOverscroll: true,
+    afterRender() {
+      injectBackButton('Your ticket', () => { location.hash = '#active_ticket'; });
+
+      const showReceipt = document.getElementById('atdShowReceipt');
+      if (showReceipt) showReceipt.addEventListener('click', () => {
+        // inactive for now — will wire to receipt detail later
+      });
+      // Inspection: inactive for now
     }
   };
 }
