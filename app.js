@@ -565,7 +565,7 @@ async function render() {
     document.body.classList.add('page-tickets');
     // collapsed large-title header only on the main tickets list (not sub-pages
     // like Buy ticket / Reis that share tab '#tickets')
-    if (hash === '#tickets') document.body.classList.add('page-tickets-home');
+    if (hash === '#tickets' || hash === '#active_ticket') document.body.classList.add('page-tickets-home');
   } else if (res.tab === '#travel') {
     document.body.classList.add('page-travel');
   } else if (res.tab === '#claim') {
@@ -608,7 +608,7 @@ async function render() {
   const overflowBtn = document.getElementById('overflow')
   if (overflowBtn) {
     // overflow button (circle + icon) only on the main tickets home
-    const onTickets = location.hash === '#tickets'
+    const onTickets = location.hash === '#tickets' || location.hash === '#active_ticket'
     overflowBtn.style.display = onTickets ? '' : 'none'
   }
 
