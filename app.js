@@ -481,7 +481,31 @@ function bindTabs(){
         // Double-tap on Tickets → toggle between active ticket and normal tickets
         lastTap = 0;
         if (location.hash === '#active_ticket') {
-          location.hash = '#tickets';
+          // Returning to #tickets: reset ticket to "just expired" state
+          (async () => {
+            try {
+              const latestRows = await TicketsDB.listTickets({ limit: 1 });
+              if (latestRows && latestRows.length) {
+                const ticket = latestRows[0];
+                const zoneStr = (window.__confirmedZones && window.__confirmedZones.size > 0)
+                  ? Array.from(window.__confirmedZones).join(',')
+                  : ticket.zone;
+                const durationMin   = ticketDurationMs(zoneStr) / 60000;
+                const expiredAgoMin = currentOffsetMinutes - 60;
+                const purchasedAt   = new Date(Date.now() - (durationMin + expiredAgoMin) * 60 * 1000);
+                await TicketsDB.updateTicketZoneAndPurchase(
+                  ticket.id,
+                  zoneStr,
+                  fmtDate(purchasedAt),
+                  fmtTime(purchasedAt),
+                  purchasedAt.toISOString()
+                );
+              }
+            } catch(e) {
+              console.error('Failed to reset ticket on double-tap back:', e);
+            }
+            location.hash = '#tickets';
+          })();
         } else {
           // Activate: update last ticket so it expires in 4 minutes
           (async () => {
