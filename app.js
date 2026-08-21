@@ -405,7 +405,7 @@ function setOffsetMinutes(newValue) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 function ticketCountdownText() {
-  if (!window.__ticketExpiresAt) return '4 minutes left';
+  if (!window.__ticketExpiresAt) return '…';
   const secsLeft = Math.max(0, (window.__ticketExpiresAt - Date.now()) / 1000);
   const minsLeft = Math.ceil(secsLeft / 60);
   if (secsLeft <= 0) return 'Expired';
@@ -494,6 +494,12 @@ function setBack(action){
 function onReady(){
   bindTabs()
   if(!location.hash) location.hash = '#travel'
+  // If the browser restored a stale #active_ticket hash (no countdown running),
+  // always reset to #tickets — the active ticket flow only starts via double-tap.
+  if ((location.hash === '#active_ticket' || location.hash === '#active_ticket_detail')
+      && (!window.__ticketExpiresAt || window.__ticketExpiresAt <= Date.now())) {
+    location.hash = '#tickets';
+  }
   render()
   window.addEventListener('hashchange', render)
   document.addEventListener('backbutton', (e) => {
