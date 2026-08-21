@@ -170,15 +170,15 @@ document.addEventListener('deviceready', async () => {
 
   // Load saved offset (if any) and apply to counter + UI.
   // If the saved value is outside MIN–MAX it means it's a stale value from
-  // before the range was changed — reset it to the mid-point default (61).
+  // before the range was changed — reset it to DEFAULT_OFFSET_MINUTES.
   try {
-    const saved = await TicketsDB.getSetting('offsetMinutes', 60);
+    const saved = await TicketsDB.getSetting('offsetMinutes', DEFAULT_OFFSET_MINUTES);
     const n = Number(saved);
-    const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : 60;
+    const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : DEFAULT_OFFSET_MINUTES;
     setOffsetMinutes(target);
   } catch (err) {
     console.error('Could not load offsetMinutes from DB', err);
-    setOffsetMinutes(60);
+    setOffsetMinutes(DEFAULT_OFFSET_MINUTES);
   }
 
   // Load first name from DB (Profile tab will write it via setSetting later)
@@ -253,11 +253,11 @@ if (!window.cordova) {
     try {
       try {
         await TicketsDB.init();
-        const saved = await TicketsDB.getSetting('offsetMinutes', 60);
+        const saved = await TicketsDB.getSetting('offsetMinutes', DEFAULT_OFFSET_MINUTES);
         const n = Number(saved);
-        const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : 60;
+        const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : DEFAULT_OFFSET_MINUTES;
         setOffsetMinutes(target);
-      } catch (e) { console.error('[PWA] DB init/offset failed:', e); setOffsetMinutes(60); }
+      } catch (e) { console.error('[PWA] DB init/offset failed:', e); setOffsetMinutes(DEFAULT_OFFSET_MINUTES); }
 
       try {
         const savedName = await TicketsDB.getSetting('firstName', 'Yannis');
@@ -358,9 +358,10 @@ async function insertDiscountedTicketForPurchase(purchaseDate, { pruneTooRecentB
 }
 
 
-const MIN_OFFSET_MINUTES = 60;  // expiry = now (0 min ago)
-const MAX_OFFSET_MINUTES = 65;  // expiry = now - 5 min
-let currentOffsetMinutes = 61; // default counter value
+const MIN_OFFSET_MINUTES     = 60;  // expiry = now (0 min ago)
+const MAX_OFFSET_MINUTES     = 65;  // expiry = now - 5 min
+const DEFAULT_OFFSET_MINUTES = 60;  // ← single place to change the default
+let currentOffsetMinutes = DEFAULT_OFFSET_MINUTES;
 
 async function createTicketAtCurrentOffset() {
   const now = new Date();
