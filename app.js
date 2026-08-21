@@ -172,13 +172,13 @@ document.addEventListener('deviceready', async () => {
   // If the saved value is outside MIN–MAX it means it's a stale value from
   // before the range was changed — reset it to the mid-point default (61).
   try {
-    const saved = await TicketsDB.getSetting('offsetMinutes', 61);
+    const saved = await TicketsDB.getSetting('offsetMinutes', 60);
     const n = Number(saved);
-    const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : 61;
+    const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : 60;
     setOffsetMinutes(target);
   } catch (err) {
     console.error('Could not load offsetMinutes from DB', err);
-    setOffsetMinutes(61);
+    setOffsetMinutes(60);
   }
 
   // Load first name from DB (Profile tab will write it via setSetting later)
@@ -253,11 +253,11 @@ if (!window.cordova) {
     try {
       try {
         await TicketsDB.init();
-        const saved = await TicketsDB.getSetting('offsetMinutes', 61);
+        const saved = await TicketsDB.getSetting('offsetMinutes', 60);
         const n = Number(saved);
-        const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : 61;
+        const target = (!Number.isNaN(n) && n >= MIN_OFFSET_MINUTES && n <= MAX_OFFSET_MINUTES) ? n : 60;
         setOffsetMinutes(target);
-      } catch (e) { console.error('[PWA] DB init/offset failed:', e); setOffsetMinutes(61); }
+      } catch (e) { console.error('[PWA] DB init/offset failed:', e); setOffsetMinutes(60); }
 
       try {
         const savedName = await TicketsDB.getSetting('firstName', 'Yannis');
