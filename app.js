@@ -398,6 +398,70 @@ function setOffsetMinutes(newValue) {
 }
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// GLOBAL TICKET COUNTDOWN
+// Persists across page navigations. Based on actual DB expiry timestamp.
+// ─────────────────────────────────────────────────────────────────────────────
+
+function ticketCountdownText() {
+  if (!window.__ticketExpiresAt) return '4 minutes left';
+  const secsLeft = Math.max(0, (window.__ticketExpiresAt - Date.now()) / 1000);
+  const minsLeft = Math.ceil(secsLeft / 60);
+  if (secsLeft <= 0) return 'Expired';
+  return `${minsLeft} minute${minsLeft !== 1 ? 's' : ''} left`;
+}
+
+function ticketCountdownRefreshDisplay() {
+  const el = document.getElementById('atcTime') || document.getElementById('atdTime');
+  if (el) el.textContent = ticketCountdownText();
+}
+
+function startTicketCountdown(expiresAtMs) {
+  window.__ticketExpiresAt = expiresAtMs;
+  if (window.__activeTicketCountdown) {
+    clearInterval(window.__activeTicketCountdown);
+    window.__activeTicketCountdown = null;
+  }
+  ticketCountdownRefreshDisplay();
+  window.__activeTicketCountdown = setInterval(() => {
+    ticketCountdownRefreshDisplay();
+    const secsLeft = (window.__ticketExpiresAt - Date.now()) / 1000;
+    if (secsLeft <= 0) {
+      clearInterval(window.__activeTicketCountdown);
+      window.__activeTicketCountdown = null;
+      window.__ticketExpiresAt = null;
+      // Reset ticket to just-expired and navigate away
+      (async () => {
+        try {
+          const latestRows = await TicketsDB.listTickets({ limit: 1 });
+          if (latestRows && latestRows.length) {
+            const ticket = latestRows[0];
+            const zoneStr = (window.__confirmedZones && window.__confirmedZones.size > 0)
+              ? Array.from(window.__confirmedZones).join(',')
+              : ticket.zone;
+            const durationMin   = ticketDurationMs(zoneStr) / 60000;
+            const expiredAgoMin = currentOffsetMinutes - 60;
+            const purchasedAt   = new Date(Date.now() - (durationMin + expiredAgoMin) * 60 * 1000);
+            await TicketsDB.updateTicketZoneAndPurchase(
+              ticket.id, zoneStr,
+              fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
+            );
+          }
+        } catch(e) { console.error('Countdown expiry reset failed:', e); }
+        location.hash = '#tickets';
+      })();
+    }
+  }, 1000);
+}
+
+function stopTicketCountdown() {
+  if (window.__activeTicketCountdown) {
+    clearInterval(window.__activeTicketCountdown);
+    window.__activeTicketCountdown = null;
+  }
+  window.__ticketExpiresAt = null;
+}
+
 const routes = {
   '#travel': renderTravel,
   '#tickets': renderTicketsLike,
@@ -480,8 +544,9 @@ function bindTabs(){
       if (isTicketsTab && now - lastTap < 350) {
         // Double-tap on Tickets → toggle between active ticket and normal tickets
         lastTap = 0;
-        if (location.hash === '#active_ticket') {
-          // Returning to #tickets: reset ticket to "just expired" state
+        if (location.hash === '#active_ticket' || location.hash === '#active_ticket_detail') {
+          // Returning to #tickets: stop countdown + reset ticket to just-expired
+          stopTicketCountdown();
           (async () => {
             try {
               const latestRows = await TicketsDB.listTickets({ limit: 1 });
@@ -494,42 +559,32 @@ function bindTabs(){
                 const expiredAgoMin = currentOffsetMinutes - 60;
                 const purchasedAt   = new Date(Date.now() - (durationMin + expiredAgoMin) * 60 * 1000);
                 await TicketsDB.updateTicketZoneAndPurchase(
-                  ticket.id,
-                  zoneStr,
-                  fmtDate(purchasedAt),
-                  fmtTime(purchasedAt),
-                  purchasedAt.toISOString()
+                  ticket.id, zoneStr,
+                  fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
                 );
               }
-            } catch(e) {
-              console.error('Failed to reset ticket on double-tap back:', e);
-            }
+            } catch(e) { console.error('Failed to reset ticket on double-tap back:', e); }
             location.hash = '#tickets';
           })();
         } else {
-          // Activate: update last ticket so it expires in 4 minutes
+          // Activate: set ticket to expire in 4 min + start global countdown
           (async () => {
             try {
               const latestRows = await TicketsDB.listTickets({ limit: 1 });
               if (latestRows && latestRows.length) {
                 const ticket = latestRows[0];
-                // Zone: prefer confirmed selection, fall back to ticket's stored zone
                 const zoneStr = (window.__confirmedZones && window.__confirmedZones.size > 0)
                   ? Array.from(window.__confirmedZones).join(',')
                   : ticket.zone;
-                const expiresAt  = new Date(Date.now() + 4 * 60 * 1000);
-                const purchasedAt = new Date(expiresAt.getTime() - ticketDurationMs(zoneStr));
+                const expiresAtMs = Date.now() + 4 * 60 * 1000;
+                const purchasedAt = new Date(expiresAtMs - ticketDurationMs(zoneStr));
                 await TicketsDB.updateTicketZoneAndPurchase(
-                  ticket.id,
-                  zoneStr,
-                  fmtDate(purchasedAt),
-                  fmtTime(purchasedAt),
-                  purchasedAt.toISOString()
+                  ticket.id, zoneStr,
+                  fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
                 );
+                startTicketCountdown(expiresAtMs);
               }
-            } catch(e) {
-              console.error('Failed to update ticket on double-tap:', e);
-            }
+            } catch(e) { console.error('Failed to activate ticket on double-tap:', e); }
             location.hash = '#active_ticket';
           })();
         }
@@ -2290,7 +2345,7 @@ async function renderActiveTicket() {
     <section class="card atc-card">
       <img src="icons/reispick.svg" class="atc-illus" alt="">
       <div class="atc-label">Single ticket</div>
-      <div class="atc-time">4 minutes left</div>
+      <div class="atc-time" id="atcTime">${ticketCountdownText()}</div>
       <div class="atc-meta">
         <div class="atc-row"><img src="icons/happy.svg" class="icon-20" alt="">${adultsLabel}</div>
         <div class="atc-row"><img src="icons/zone.svg" class="icon-20" alt="">${zoneLabel}</div>
@@ -2368,50 +2423,14 @@ async function renderActiveTicket() {
           obs.disconnect();
           topbarEl2.classList.remove('is-scrolled');
           miniTitle.textContent = '';
-          // also kill countdown if navigating away
-          if (window.__activeTicketCountdown) {
-            clearInterval(window.__activeTicketCountdown);
-            window.__activeTicketCountdown = null;
-          }
+          // NOTE: do NOT kill the countdown here — it must persist across pages
         };
       }
 
-      // ── Countdown timer ──────────────────────────────────────────────────
-      const timeEl = document.querySelector('.atc-time');
-      if (timeEl) {
-        let secondsLeft = 4 * 60;
-        const tick = () => {
-          secondsLeft--;
-          const minsLeft = Math.ceil(secondsLeft / 60);
-          if (secondsLeft > 0) {
-            timeEl.textContent = `${minsLeft} minute${minsLeft !== 1 ? 's' : ''} left`;
-          } else {
-            // Timer expired → reset ticket to just-expired and go to #tickets
-            clearInterval(window.__activeTicketCountdown);
-            window.__activeTicketCountdown = null;
-            (async () => {
-              try {
-                const latestRows = await TicketsDB.listTickets({ limit: 1 });
-                if (latestRows && latestRows.length) {
-                  const ticket = latestRows[0];
-                  const zoneStr = (window.__confirmedZones && window.__confirmedZones.size > 0)
-                    ? Array.from(window.__confirmedZones).join(',')
-                    : ticket.zone;
-                  const durationMin   = ticketDurationMs(zoneStr) / 60000;
-                  const expiredAgoMin = currentOffsetMinutes - 60;
-                  const purchasedAt   = new Date(Date.now() - (durationMin + expiredAgoMin) * 60 * 1000);
-                  await TicketsDB.updateTicketZoneAndPurchase(
-                    ticket.id, zoneStr,
-                    fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
-                  );
-                }
-              } catch(e) { console.error('Countdown expiry reset failed:', e); }
-              location.hash = '#tickets';
-            })();
-          }
-        };
-        window.__activeTicketCountdown = setInterval(tick, 1000);
-      }
+      // ── Sync display with running global countdown ────────────────────────
+      // (startTicketCountdown was called on double-tap; we just ensure the element
+      //  gets the current value immediately in case the interval hasn't fired yet)
+      ticketCountdownRefreshDisplay();
 
       // Ticket details link → active ticket detail page
       const detailLink = document.getElementById('atcDetailLink');
@@ -2473,7 +2492,7 @@ async function renderActiveTicketDetail() {
       <div class="atd-bar"></div>
       <div class="atd-content">
         <div class="atd-label">Single ticket</div>
-        <div class="atd-time">4 minutes left</div>
+        <div class="atd-time" id="atdTime">${ticketCountdownText()}</div>
         <div class="atd-meta">
           <div class="atd-row"><img src="icons/happy.svg" class="icon-14" alt="">${adultsLabel}</div>
           <div class="atd-row"><img src="icons/zone.svg" class="icon-14" alt="">${zoneLabel}</div>
@@ -2515,6 +2534,9 @@ async function renderActiveTicketDetail() {
     disableOverscroll: true,
     afterRender() {
       injectBackButton('Your ticket', () => { location.hash = '#active_ticket'; });
+
+      // Sync countdown display immediately (global timer keeps updating #atdTime each second)
+      ticketCountdownRefreshDisplay();
 
       const showReceipt = document.getElementById('atdShowReceipt');
       if (showReceipt) showReceipt.addEventListener('click', () => {
