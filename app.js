@@ -1096,7 +1096,7 @@ async function renderTicketsLike(){
         const goTo = (n, animate = true) => {
           slide = Math.max(0, Math.min(n, total - 1));
           track.style.transition = animate ? 'transform 0.3s ease' : 'none';
-          track.style.transform  = `translateX(-${slide * 50}%)`;
+          track.style.transform  = `translateX(-${slide * 100}%)`;
           dotEls.forEach((d, i) => d.classList.toggle('cdot--active', i === slide));
         };
 
@@ -1106,7 +1106,7 @@ async function renderTicketsLike(){
         const onMove  = (x) => {
           if (!isDrag) return;
           dragDx = x - tx0;
-          const base = -slide * 50;
+          const base = -slide * 100;
           const pct  = base + (dragDx / track.parentElement.offsetWidth) * 100;
           track.style.transform = `translateX(${pct}%)`;
         };

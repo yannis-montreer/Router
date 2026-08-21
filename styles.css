@@ -1509,17 +1509,17 @@ ul li::before {
    ============================================================= */
 .ticket-carousel {
   overflow: hidden;
-  margin: 0;          /* inherits page padding from .view */
+  width: 100%;
 }
 .carousel-track {
   display: flex;
-  width: 200%;        /* 2 slides side by side */
+  flex-direction: row;
   will-change: transform;
 }
 .carousel-slide {
-  width: 50%;         /* 50% of 200% = 100% of the carousel */
+  min-width: 100%;    /* each slide = full carousel width */
   flex-shrink: 0;
-  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Dots indicator */
