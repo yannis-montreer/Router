@@ -2368,7 +2368,49 @@ async function renderActiveTicket() {
           obs.disconnect();
           topbarEl2.classList.remove('is-scrolled');
           miniTitle.textContent = '';
+          // also kill countdown if navigating away
+          if (window.__activeTicketCountdown) {
+            clearInterval(window.__activeTicketCountdown);
+            window.__activeTicketCountdown = null;
+          }
         };
+      }
+
+      // ── Countdown timer ──────────────────────────────────────────────────
+      const timeEl = document.querySelector('.atc-time');
+      if (timeEl) {
+        let secondsLeft = 4 * 60;
+        const tick = () => {
+          secondsLeft--;
+          const minsLeft = Math.ceil(secondsLeft / 60);
+          if (secondsLeft > 0) {
+            timeEl.textContent = `${minsLeft} minute${minsLeft !== 1 ? 's' : ''} left`;
+          } else {
+            // Timer expired → reset ticket to just-expired and go to #tickets
+            clearInterval(window.__activeTicketCountdown);
+            window.__activeTicketCountdown = null;
+            (async () => {
+              try {
+                const latestRows = await TicketsDB.listTickets({ limit: 1 });
+                if (latestRows && latestRows.length) {
+                  const ticket = latestRows[0];
+                  const zoneStr = (window.__confirmedZones && window.__confirmedZones.size > 0)
+                    ? Array.from(window.__confirmedZones).join(',')
+                    : ticket.zone;
+                  const durationMin   = ticketDurationMs(zoneStr) / 60000;
+                  const expiredAgoMin = currentOffsetMinutes - 60;
+                  const purchasedAt   = new Date(Date.now() - (durationMin + expiredAgoMin) * 60 * 1000);
+                  await TicketsDB.updateTicketZoneAndPurchase(
+                    ticket.id, zoneStr,
+                    fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
+                  );
+                }
+              } catch(e) { console.error('Countdown expiry reset failed:', e); }
+              location.hash = '#tickets';
+            })();
+          }
+        };
+        window.__activeTicketCountdown = setInterval(tick, 1000);
       }
 
       // Ticket details link → active ticket detail page
