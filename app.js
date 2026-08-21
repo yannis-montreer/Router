@@ -2365,8 +2365,14 @@ async function renderActiveTicketDetail() {
   let discountPct = 0;
   try { discountPct = await getNextDiscountPercent(); } catch(e) {}
 
-  // Static expiry for now
-  const expiresLabel = 'Expires 19/08/2026 at 23:41';
+  // Expiry = now + 4 minutes
+  const expireTime = new Date(Date.now() + 4 * 60 * 1000);
+  const expDay  = String(expireTime.getDate()).padStart(2, '0');
+  const expMon  = String(expireTime.getMonth() + 1).padStart(2, '0');
+  const expYear = expireTime.getFullYear();
+  const expH    = String(expireTime.getHours()).padStart(2, '0');
+  const expMin  = String(expireTime.getMinutes()).padStart(2, '0');
+  const expiresLabel = `Expires ${expDay}/${expMon}/${expYear} at ${expH}:${expMin}`;
 
   const html = `
     <section class="atd-card card">
@@ -2375,10 +2381,10 @@ async function renderActiveTicketDetail() {
         <div class="atd-label">Single ticket</div>
         <div class="atd-time">4 minutes left</div>
         <div class="atd-meta">
-          <div class="atd-row"><img src="icons/happy.svg" class="icon-20" alt="">${adultsLabel}</div>
-          <div class="atd-row"><img src="icons/zone.svg" class="icon-20" alt="">${zoneLabel}</div>
-          <div class="atd-row"><img src="icons/ticket.svg" class="icon-20" alt="">${discountPct}% discount</div>
-          <div class="atd-row"><img src="icons/hourglass.svg" class="icon-20" alt="">${expiresLabel}</div>
+          <div class="atd-row"><img src="icons/happy.svg" class="icon-14" alt="">${adultsLabel}</div>
+          <div class="atd-row"><img src="icons/zone.svg" class="icon-14" alt="">${zoneLabel}</div>
+          <div class="atd-row"><img src="icons/ticket.svg" class="icon-14" alt="">${discountPct}% discount</div>
+          <div class="atd-row"><img src="icons/hourglass.svg" class="icon-14" alt="">${expiresLabel}</div>
         </div>
       </div>
     </section>
@@ -2391,11 +2397,11 @@ async function renderActiveTicketDetail() {
         <img src="icons/chevron-right.svg" class="icon-16 atd-chev" alt="">
       </button>
       <div class="atd-divider"></div>
-      <div class="atd-list-row atd-list-row--inactive">
+      <button class="atd-list-row" id="atdEditNotif">
         <img src="icons/bell.svg" class="icon-20" alt="">
         <span>Edit notifications</span>
         <img src="icons/chevron-right.svg" class="icon-16 atd-chev" alt="">
-      </div>
+      </button>
     </section>
 
     <!-- Inspection button -->

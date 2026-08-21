@@ -1706,11 +1706,7 @@ ul li::before {
   text-align: left;
   cursor: pointer;
 }
-.atd-list-row--inactive {
-  opacity: 0.45;
-  cursor: default;
-  pointer-events: none;
-}
+/* .atd-list-row--inactive removed — Edit notifications is now a normal button */
 .atd-chev {
   margin-left: auto;
   opacity: 0.45;
@@ -1725,9 +1721,10 @@ ul li::before {
 }
 .btn-inspection--full {
   width: 100%;
-  border-radius: 14px;
+  border-radius: 100px;
   padding: 16px 20px;
   font-size: 17px;
   justify-content: center;
 }
+.icon-14 { width: 14px; height: 14px; display: block; flex-shrink: 0; }
 
