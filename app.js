@@ -480,7 +480,35 @@ function bindTabs(){
       if (isTicketsTab && now - lastTap < 350) {
         // Double-tap on Tickets → toggle between active ticket and normal tickets
         lastTap = 0;
-        location.hash = location.hash === '#active_ticket' ? '#tickets' : '#active_ticket';
+        if (location.hash === '#active_ticket') {
+          location.hash = '#tickets';
+        } else {
+          // Activate: update last ticket so it expires in 4 minutes
+          (async () => {
+            try {
+              const latestRows = await TicketsDB.listTickets({ limit: 1 });
+              if (latestRows && latestRows.length) {
+                const ticket = latestRows[0];
+                // Zone: prefer confirmed selection, fall back to ticket's stored zone
+                const zoneStr = (window.__confirmedZones && window.__confirmedZones.size > 0)
+                  ? Array.from(window.__confirmedZones).join(',')
+                  : ticket.zone;
+                const expiresAt  = new Date(Date.now() + 4 * 60 * 1000);
+                const purchasedAt = new Date(expiresAt.getTime() - ticketDurationMs(zoneStr));
+                await TicketsDB.updateTicketZoneAndPurchase(
+                  ticket.id,
+                  zoneStr,
+                  fmtDate(purchasedAt),
+                  fmtTime(purchasedAt),
+                  purchasedAt.toISOString()
+                );
+              }
+            } catch(e) {
+              console.error('Failed to update ticket on double-tap:', e);
+            }
+            location.hash = '#active_ticket';
+          })();
+        }
         return;
       }
       lastTap = now;
