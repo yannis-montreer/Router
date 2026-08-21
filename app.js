@@ -2710,7 +2710,9 @@ async function renderReceiptDetail(){
     afterRender(){
       const backPref = window.__receiptBack;
       const goBack = () => {
-        if (backPref && backPref.hash === '#ticket_detail') {
+        if (backPref && backPref.hash === '#active_ticket_detail') {
+          location.hash = '#active_ticket_detail';
+        } else if (backPref && backPref.hash === '#ticket_detail') {
           location.hash = '#ticket_detail';
         } else {
           window.__phDefaultTab = 'receipts';
