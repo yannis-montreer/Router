@@ -472,9 +472,19 @@ function bindTabs(){
   }
 
   document.querySelectorAll('.tab').forEach(btn => {
+    let lastTap = 0;
     btn.addEventListener('click', () => {
-      location.hash = btn.dataset.route
-    })
+      const now = Date.now();
+      const isTicketsTab = btn.dataset.route === '#tickets';
+      if (isTicketsTab && now - lastTap < 350) {
+        // Double-tap on Tickets → active ticket page
+        lastTap = 0;
+        location.hash = '#active_ticket';
+        return;
+      }
+      lastTap = now;
+      location.hash = btn.dataset.route;
+    });
   })
 }
 
@@ -938,76 +948,35 @@ async function renderTicketsLike(){
     expiredTime = fmtHHMM(now);
   }
 
-  // Data for the valid ticket slide
-  const validZoneLabel   = (rows && rows.length) ? fmtZone(rows[0].zone) : 'Zone 1 and 2V';
-  const validAdultsLabel = (rows && rows.length) ? `${rows[0].adults} adult${rows[0].adults > 1 ? 's' : ''}` : '1 adult';
-  const validDiscount    = (rows && rows.length) ? `${Number(rows[0].discount_percent) || 0}% discount` : '0% discount';
-
   const html = `
     <h1 id="tickets-scroll-heading" class="tickets-scroll-heading">Tickets</h1>
 
-    <!-- ── Swipeable carousel ─────────────────────────────────────── -->
-    <div class="ticket-carousel" id="ticketCarousel">
-      <div class="carousel-track" id="carouselTrack">
+    <section class="card dashed" style="position:relative; overflow:hidden;">
+      <img src="icons/dashed_box.svg" alt="" class="frame" aria-hidden="true">
 
-        <!-- Slide 0 : expired / no valid ticket -->
-        <div class="carousel-slide">
-          <section class="card dashed" style="position:relative;overflow:hidden;">
-            <img src="icons/dashed_box.svg" alt="" class="frame" aria-hidden="true">
-            <div class="dashed-content">
-              <img src="icons/empty.svg" alt="" class="illus">
-              <div class="dashed-text">You have no tickets</div>
-            </div>
-            <button id="offsetPlus"
-              style="position:absolute;top:0;right:0;width:50%;height:100%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;">
-            </button>
-            <button id="offsetMinus"
-              style="position:absolute;top:0;left:0;width:50%;height:100%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;">
-            </button>
-          </section>
-          <section class="card info" id="expiredCard">
-            <img src="icons/info.svg" class="icon-24" alt="">
-            <div class="ticket-expired">
-              <strong>Your single ticket expired at ${expiredTime}.</strong> If you boarded before this, you can stay on board until you reach your stop.
-            </div>
-            <img src="icons/chevron-right-expired.svg" class="icon-24 expired-arrow" alt="">
-          </section>
-          <button class="buy-ticket" id="buyTicket">Buy ticket</button>
-        </div>
-
-        <!-- Slide 1 : valid ticket (static) -->
-        <div class="carousel-slide">
-          <section class="card atc-card">
-            <img src="icons/buyticket.svg" class="atc-illus" alt="">
-            <div class="atc-label">Single ticket</div>
-            <div class="atc-time">4 minutes left</div>
-            <div class="atc-meta">
-              <div class="atc-row"><img src="icons/happy2.svg" class="icon-20" alt="">${validAdultsLabel}</div>
-              <div class="atc-row"><img src="icons/zone.svg" class="icon-20" alt="">${validZoneLabel}</div>
-              <div class="atc-row"><img src="icons/buyticket_reis.svg" class="icon-20" alt="">${validDiscount}</div>
-            </div>
-            <div class="atc-footer">
-              <a class="atc-detail-link" id="activeTicketDetail">Ticket details
-                <img src="icons/chevron-right.svg" class="icon-16" alt="">
-              </a>
-            </div>
-          </section>
-          <div class="atc-actions">
-            <button class="btn-inspection" id="inspectionBtn">
-              <img src="icons/qr.svg" class="icon-20" onerror="this.style.display='none'" alt="">
-              Inspection
-            </button>
-            <button class="buy-ticket atc-buy-new" id="buyNewBtn">Buy new ticket</button>
-          </div>
-        </div>
-
-      </div><!-- /carousel-track -->
-
-      <div class="carousel-dots">
-        <span class="cdot cdot--active"></span>
-        <span class="cdot"></span>
+      <div class="dashed-content">
+        <img src="icons/empty.svg" alt="" class="illus">
+        <div class="dashed-text">You have no tickets</div>
       </div>
-    </div><!-- /ticket-carousel -->
+
+      <!-- Offset controls overlaid on dashed box, left = −1 min, right = +1 min -->
+      <button id="offsetPlus"
+        style="position:absolute;top:0;right:0;width:50%;height:100%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;">
+      </button>
+      <button id="offsetMinus"
+        style="position:absolute;top:0;left:0;width:50%;height:100%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;">
+      </button>
+    </section>
+
+    <section class="card info" id="expiredCard">
+      <img src="icons/info.svg" class="icon-24" alt="">
+      <div class="ticket-expired">
+        <strong>Your single ticket expired at ${expiredTime}.</strong> If you boarded before this, you can stay on board until you reach your stop.
+      </div>
+      <img src="icons/chevron-right-expired.svg" class="icon-24 expired-arrow" alt="">
+    </section>
+
+    <button class="buy-ticket" id="buyTicket">Buy ticket</button>
 
     <div class="section-row">
       <h3 class="section-title profile">Quick purchase</h3>
@@ -1084,58 +1053,6 @@ async function renderTicketsLike(){
           miniTitle.textContent = '';
           miniTitle.style.opacity = '';
         };
-      }
-
-      // ── Carousel swipe ──────────────────────────────────────────────
-      {
-        const track  = document.getElementById('carouselTrack');
-        const dotEls = document.querySelectorAll('.cdot');
-        let slide = 0;
-        const total = 2;
-
-        const goTo = (n, animate = true) => {
-          slide = Math.max(0, Math.min(n, total - 1));
-          track.style.transition = animate ? 'transform 0.3s ease' : 'none';
-          track.style.transform  = `translateX(-${slide * 100}%)`;
-          dotEls.forEach((d, i) => d.classList.toggle('cdot--active', i === slide));
-        };
-
-        let tx0 = 0, isDrag = false, dragDx = 0;
-
-        const onStart = (x) => { tx0 = x; isDrag = true; dragDx = 0; track.style.transition = 'none'; };
-        const onMove  = (x) => {
-          if (!isDrag) return;
-          dragDx = x - tx0;
-          const base = -slide * 100;
-          const pct  = base + (dragDx / track.parentElement.offsetWidth) * 100;
-          track.style.transform = `translateX(${pct}%)`;
-        };
-        const onEnd = () => {
-          if (!isDrag) return;
-          isDrag = false;
-          goTo(Math.abs(dragDx) > 40 ? (dragDx < 0 ? slide + 1 : slide - 1) : slide);
-          dragDx = 0;
-        };
-
-        track.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
-        track.addEventListener('touchmove',  e => onMove(e.touches[0].clientX),  { passive: true });
-        track.addEventListener('touchend',   onEnd, { passive: true });
-        track.addEventListener('mousedown',  e => { e.preventDefault(); onStart(e.clientX); });
-        track.addEventListener('mousemove',  e => { if (isDrag) onMove(e.clientX); });
-        track.addEventListener('mouseup',    onEnd);
-        track.addEventListener('mouseleave', onEnd);
-
-        // Ticket details → active_ticket page
-        const detailLink = document.getElementById('activeTicketDetail');
-        if (detailLink) detailLink.addEventListener('click', () => { location.hash = '#active_ticket'; });
-
-        // Inspection → inactive for now
-        const inspBtn = document.getElementById('inspectionBtn');
-        if (inspBtn) inspBtn.addEventListener('click', () => { /* TODO */ });
-
-        // Buy new ticket
-        const buyNewBtn = document.getElementById('buyNewBtn');
-        if (buyNewBtn) buyNewBtn.addEventListener('click', () => { location.hash = '#buy_ticket'; });
       }
 
       const btn = document.getElementById('buyTicket');
