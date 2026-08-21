@@ -477,9 +477,9 @@ function bindTabs(){
       const now = Date.now();
       const isTicketsTab = btn.dataset.route === '#tickets';
       if (isTicketsTab && now - lastTap < 350) {
-        // Double-tap on Tickets → active ticket page
+        // Double-tap on Tickets → toggle between active ticket and normal tickets
         lastTap = 0;
-        location.hash = '#active_ticket';
+        location.hash = location.hash === '#active_ticket' ? '#tickets' : '#active_ticket';
         return;
       }
       lastTap = now;
