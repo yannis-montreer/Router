@@ -1634,6 +1634,7 @@ ul li::before {
 
 /* icon-16 utility */
 .icon-16 { width: 16px; height: 16px; }
+.icon-20 { width: 20px; height: 20px; display: block; flex-shrink: 0; }
 
 /* =============================================================
    ACTIVE TICKET DETAIL PAGE  (#active_ticket)

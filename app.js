@@ -2220,70 +2220,129 @@ async function renderActiveTicket() {
   let zoneLabel   = 'Zone 1 and 2V';
   let adultsLabel = '1 adult';
   let discountPct = 0;
-  let expiresStr  = '';
 
   if (rows && rows.length) {
     const t = rows[0];
     zoneLabel   = fmtZone(t.zone);
     adultsLabel = `${t.adults} adult${t.adults > 1 ? 's' : ''}`;
     discountPct = Number(t.discount_percent) || 0;
-    const exp   = new Date(new Date(t.purchased_at_iso).getTime() + ticketDurationMs(t.zone));
-    expiresStr  = `${pad(exp.getDate())}/${pad(exp.getMonth()+1)}/${exp.getFullYear()} at ${fmtHHMM(exp)}`;
   }
 
   const html = `
-    <section class="card atd-card">
-      <div class="atd-bar"></div>
-      <div class="atd-content">
-        <div class="atd-eyebrow">Single ticket</div>
-        <div class="atd-time">4 minutes left</div>
-        <div class="atd-meta">
-          <div class="atd-row"><img src="icons/happy2.svg" class="icon-20" alt="">${adultsLabel}</div>
-          <div class="atd-row"><img src="icons/zone.svg" class="icon-20" alt="">${zoneLabel}</div>
-          ${discountPct > 0 ? `<div class="atd-row"><img src="icons/buyticket_reis.svg" class="icon-20" alt="">${discountPct}% discount</div>` : ''}
-          ${expiresStr   ? `<div class="atd-row"><img src="icons/hourglass.svg" class="icon-20" alt="">Expires ${expiresStr}</div>` : ''}
-        </div>
+    <h1 id="tickets-scroll-heading" class="tickets-scroll-heading">Tickets</h1>
+
+    <!-- Active ticket card -->
+    <section class="card atc-card">
+      <img src="icons/buyticket.svg" class="atc-illus" alt="">
+      <div class="atc-label">Single ticket</div>
+      <div class="atc-time">4 minutes left</div>
+      <div class="atc-meta">
+        <div class="atc-row"><img src="icons/happy2.svg" class="icon-20" alt="">${adultsLabel}</div>
+        <div class="atc-row"><img src="icons/zone.svg" class="icon-20" alt="">${zoneLabel}</div>
+        ${discountPct > 0 ? `<div class="atc-row"><img src="icons/buyticket_reis.svg" class="icon-20" alt="">${discountPct}% discount</div>` : ''}
+      </div>
+      <div class="atc-footer">
+        <a class="atc-detail-link" id="atcDetailLink">Ticket details
+          <img src="icons/chevron-right.svg" class="icon-16" alt="">
+        </a>
       </div>
     </section>
 
-    <div class="list atd-list">
-      <div class="list-row" id="atdReceipt">
-        <img src="icons/receipt.svg" class="icon-24" alt="">
-        <div class="row-title">Show receipt</div>
-        <img src="icons/chevron-right.svg" class="icon-24 chev" alt="">
-      </div>
-      <div class="list-row" id="atdNotif">
-        <img src="icons/bell.svg" class="icon-24" alt="">
-        <div class="row-title">Edit notifications</div>
-        <img src="icons/chevron-right.svg" class="icon-24 chev" alt="">
-      </div>
-    </div>
-
-    <div class="atd-inspection-wrap">
-      <button class="btn-inspection btn-inspection--full" id="atdInspectionBtn">
+    <!-- Action buttons -->
+    <div class="atc-actions">
+      <button class="btn-inspection" id="atcInspectionBtn">
         <img src="icons/qr.svg" class="icon-20" onerror="this.style.display='none'" alt="">
         Inspection
       </button>
+      <button class="buy-ticket atc-buy-new" id="atcBuyNewBtn">Buy new ticket</button>
+    </div>
+
+    <!-- Quick purchase (same as Tickets page) -->
+    <div class="section-row">
+      <h3 class="section-title profile">Quick purchase</h3>
+      <button class="see-all-btn" id="seeAllBtn">See all</button>
+    </div>
+
+    <div class="qp-list">
+      <div class="qp-tiles">
+        <div class="row-main">
+          <div class="qp-row-title">Single ticket</div>
+          <div class="qp-row-sub" id="qpZoneLabel">1 Adult, Zone 1</div>
+        </div>
+        <button class="qp-buy-btn">Buy</button>
+      </div>
+      <div class="qp-tiles">
+        <div class="row-main">
+          <div class="qp-row-title">Single ticket</div>
+          <div class="qp-row-sub">1 Adult, Zones 1 and 2V</div>
+        </div>
+        <button class="qp-buy-btn">Buy</button>
+      </div>
+    </div>
+
+    <h3 class="section-title discount-title">Your discount</h3>
+    <div class="discount-card card" id="discountCard">
+      <img src="icons/buyticket_reis.svg" alt="" class="discount-illus">
+      <div class="discount-info">
+        <span class="discount-pct" id="discountPct"></span>
+        <span class="discount-sub">Your next Reis discount</span>
+      </div>
+      <img src="icons/chevron-right.svg" alt="" class="chev discount-chev">
     </div>
   `;
 
   return {
     html,
-    title: 'Your ticket',
+    title: 'Tickets',
     tab: '#tickets',
-    overflow: false,
-    disableOverscroll: false,
-    backButton: { label: 'Your ticket', dest: '#tickets' },
+    overflow: true,
+    disableOverscroll: true,
     afterRender() {
-      const receiptRow = document.getElementById('atdReceipt');
-      if (receiptRow && rows && rows.length) {
-        receiptRow.addEventListener('click', () => {
-          window.__selectedTicketId = rows[0].id;
-          window.__receiptBack = { hash: '#active_ticket' };
-          location.hash = '#receipt_detail';
-        });
+      // Scroll-aware topbar (same as tickets page)
+      const topbarEl2 = document.querySelector('.topbar');
+      const miniTitle = document.getElementById('title');
+      const scrollHeading = document.getElementById('tickets-scroll-heading');
+      const viewEl = document.getElementById('view');
+      if (topbarEl2 && miniTitle && scrollHeading && viewEl) {
+        miniTitle.textContent = 'Tickets';
+        const obs = new IntersectionObserver(entries => {
+          topbarEl2.classList.toggle('is-scrolled', !entries[0].isIntersecting);
+        }, { root: viewEl, threshold: 0 });
+        obs.observe(scrollHeading);
+        window.__topbarCleanup = () => {
+          obs.disconnect();
+          topbarEl2.classList.remove('is-scrolled');
+          miniTitle.textContent = '';
+        };
       }
-      // Inspection & notifications → inactive for now
+
+      // Ticket details link → active ticket detail page
+      const detailLink = document.getElementById('atcDetailLink');
+      if (detailLink) detailLink.addEventListener('click', () => { location.hash = '#active_ticket_detail'; });
+
+      // Inspection → inactive for now
+      // Buy new ticket
+      const buyNewBtn = document.getElementById('atcBuyNewBtn');
+      if (buyNewBtn) buyNewBtn.addEventListener('click', () => { location.hash = '#buy_ticket'; });
+
+      // Discount card
+      const discountCard = document.getElementById('discountCard');
+      if (discountCard) discountCard.onclick = () => { location.hash = '#reis'; };
+      const pctEl = document.getElementById('discountPct');
+      if (pctEl) getNextDiscountPercent().then(pct => { pctEl.textContent = pct + '%'; });
+
+      // Quick purchase
+      document.querySelectorAll('.qp-tiles, .qp-tiles .qp-buy-btn').forEach(el => {
+        el.addEventListener('click', () => { location.hash = '#buy_ticket'; });
+      });
+      const seeAllBtn = document.getElementById('seeAllBtn');
+      if (seeAllBtn) seeAllBtn.addEventListener('click', () => { location.hash = '#quick_purchase'; });
+
+      // Zone label
+      const qpZoneLabel = document.getElementById('qpZoneLabel');
+      if (qpZoneLabel && window.__confirmedZones && window.__confirmedZones.size > 0) {
+        qpZoneLabel.textContent = `1 Adult, ${fmtConfirmedZones(window.__confirmedZones)}`;
+      }
     }
   };
 }
