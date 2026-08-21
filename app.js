@@ -191,6 +191,22 @@ document.addEventListener('deviceready', async () => {
 
   // On app open: create ticket only if last one is >= 70 min old (or none exists)
   await createBackdatedTicketIfNeeded({ force: false });
+
+  // Sync the latest ticket so it expires exactly now (offset = 0) on launch.
+  // This only runs once at startup — #active_ticket flow will overwrite as needed.
+  try {
+    const initRows = await TicketsDB.listTickets({ limit: 1 });
+    if (initRows && initRows.length) {
+      const t = initRows[0];
+      const zoneStr = t.zone || '1';
+      const purchasedAt = new Date(Date.now() - ticketDurationMs(zoneStr));
+      await TicketsDB.updateTicketZoneAndPurchase(
+        t.id, zoneStr,
+        fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
+      );
+    }
+  } catch(e) { /* non-fatal */ }
+
     // === EXPORT DATABASE FUNCTION (available globally) ===
     window.exportDb = function() {
       const dbName = 'tickets.db'; // change if your actual DB name differs
@@ -269,6 +285,21 @@ if (!window.cordova) {
       try {
         await createBackdatedTicketIfNeeded({ force: false });
       } catch (e) { console.error('[PWA] createBackdatedTicket failed:', e); }
+
+      // Sync ticket expiry to exactly now on launch (offset = 0).
+      // #active_ticket flow will overwrite this when triggered.
+      try {
+        const initRows = await TicketsDB.listTickets({ limit: 1 });
+        if (initRows && initRows.length) {
+          const t = initRows[0];
+          const zoneStr = t.zone || '1';
+          const purchasedAt = new Date(Date.now() - ticketDurationMs(zoneStr));
+          await TicketsDB.updateTicketZoneAndPurchase(
+            t.id, zoneStr,
+            fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
+          );
+        }
+      } catch(e) { /* non-fatal */ }
 
       try {
         const latestRows = await TicketsDB.listTickets({ limit: 1 });
@@ -1058,6 +1089,7 @@ async function renderTicketsLike(){
   // Get the latest ticket (newest first)
   let rows = [];
   try { rows = await TicketsDB.listTickets({ limit: 1 }); } catch(e) { console.warn('[renderTicketsLike] DB unavailable:', e); }
+
   let expiredTime;
 
   if (rows && rows.length) {
