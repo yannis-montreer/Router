@@ -1559,7 +1559,7 @@ ul li::before {
   position: absolute;
   right: 4px;
   top: 12px;
-  width: clamp(90px, 30vw, 120px);
+  width: clamp(120px, 40vw, 160px);
   height: auto;
   pointer-events: none;
 }
