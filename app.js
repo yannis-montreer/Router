@@ -2413,7 +2413,7 @@ async function renderActiveTicket() {
 
     <!-- Active ticket card -->
     <section class="card atc-card">
-      <img src="icons/reispick.svg" class="atc-illus" alt="">
+      <img src="icons/valid-ticket.svg" class="atc-illus" alt="">
       <div class="atc-label">Single ticket</div>
       <div class="atc-time" id="atcTime">${ticketCountdownText()}</div>
       <div class="atc-meta">
