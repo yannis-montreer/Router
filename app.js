@@ -2417,9 +2417,9 @@ async function renderActiveTicket() {
       <div class="atc-label">Single ticket</div>
       <div class="atc-time" id="atcTime">${ticketCountdownText()}</div>
       <div class="atc-meta">
-        <div class="atc-row"><img src="icons/happy.svg" class="icon-20" alt="">${adultsLabel}</div>
-        <div class="atc-row"><img src="icons/zone.svg" class="icon-20" alt="">${zoneLabel}</div>
-        <div class="atc-row"><img src="icons/discount.svg" class="icon-20" alt="">${discountPct}% discount</div>
+        <div class="atc-row"><img src="icons/happy.svg" class="icon-14" alt="">${adultsLabel}</div>
+        <div class="atc-row"><img src="icons/zone.svg" class="icon-14" alt="">${zoneLabel}</div>
+        <div class="atc-row"><img src="icons/discount.svg" class="icon-14" alt="">${discountPct}% discount</div>
       </div>
       <div class="atc-footer">
         <a class="atc-detail-link" id="atcDetailLink">Ticket details

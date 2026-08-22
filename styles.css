@@ -1557,15 +1557,15 @@ ul li::before {
 }
 .atc-illus {
   position: absolute;
-  right: 4px;
-  top: 12px;
-  width: clamp(120px, 40vw, 160px);
+  right: 8px;
+  bottom: 12px;
+  width: clamp(80px, 26vw, 110px);
   height: auto;
   pointer-events: none;
 }
 .atc-label {
-  font-size: 13px;
-  color: rgba(255,255,255,0.60);
+  font-size: 14px;
+  color: #fff;
   font-weight: 500;
   margin-bottom: 4px;
 }
@@ -1574,20 +1574,20 @@ ul li::before {
   font-weight: 700;
   color: #fff;
   line-height: 1.15;
-  padding-right: clamp(95px, 32vw, 125px); /* keep text away from illustration */
+  padding-right: clamp(85px, 28vw, 115px);
   margin-bottom: 12px;
 }
 .atc-meta {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 .atc-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  color: rgba(255,255,255,0.88);
+  font-size: 15px;
+  color: rgba(255,255,255,0.92);
 }
 .atc-footer {
   display: flex;
@@ -1628,7 +1628,7 @@ ul li::before {
 }
 .atc-buy-new {
   flex: 1;
-  font-size: 14px !important;
+  font-size: 15px !important;
   padding: 14px 16px !important;
 }
 
