@@ -1558,7 +1558,8 @@ ul li::before {
 .atc-illus {
   position: absolute;
   right: 8px;
-  bottom: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   width: clamp(80px, 26vw, 110px);
   height: auto;
   pointer-events: none;
