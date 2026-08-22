@@ -2419,7 +2419,7 @@ async function renderActiveTicket() {
       <div class="atc-meta">
         <div class="atc-row"><img src="icons/happy.svg" class="icon-20" alt="">${adultsLabel}</div>
         <div class="atc-row"><img src="icons/zone.svg" class="icon-20" alt="">${zoneLabel}</div>
-        <div class="atc-row"><img src="icons/ticket.svg" class="icon-20" alt="">${discountPct}% discount</div>
+        <div class="atc-row"><img src="icons/discount.svg" class="icon-20" alt="">${discountPct}% discount</div>
       </div>
       <div class="atc-footer">
         <a class="atc-detail-link" id="atcDetailLink">Ticket details
@@ -2566,7 +2566,7 @@ async function renderActiveTicketDetail() {
         <div class="atd-meta">
           <div class="atd-row"><img src="icons/happy.svg" class="icon-14" alt="">${adultsLabel}</div>
           <div class="atd-row"><img src="icons/zone.svg" class="icon-14" alt="">${zoneLabel}</div>
-          <div class="atd-row"><img src="icons/ticket.svg" class="icon-14" alt="">${discountPct}% discount</div>
+          <div class="atd-row"><img src="icons/discount.svg" class="icon-14" alt="">${discountPct}% discount</div>
           <div class="atd-row"><img src="icons/hourglass.svg" class="icon-14" alt="">${expiresLabel}</div>
         </div>
       </div>
