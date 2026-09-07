@@ -30,6 +30,7 @@
    BASE
    ============================================================= */
 * { box-sizing: border-box; }
+button, a, [role="button"], .tab, .tab-label { touch-action: manipulation; }
 
 html, body { height: 100%; }
 
