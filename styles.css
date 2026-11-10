@@ -1044,7 +1044,7 @@ ul li::before {
   gap: 0.8vh;
 }
 .meta-item {
-  font-family: Segoe UI;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   display: inline-flex;
   align-items: center;
   gap: 2vw;
