@@ -2349,7 +2349,7 @@ async function renderTicketDetail(){
         <div style="height:10px"></div>
         <div class="exp-kv">
           <div class="kv-label">Ticket number</div>
-          <div class="kv-value">nuII</div>
+          <div class="kv-value">${row.ticket_number || '—'}</div>
         </div>
 
         <div class="receipt-cta">
@@ -2692,7 +2692,7 @@ async function renderReceiptDetail(){
       <div class="rcptd-row"><span>Payment method</span><span>VISA</span></div>
       <div class="rcptd-row"><span>Purchased</span><span>${purchasedAt}</span></div>
       <div class="rcptd-row"><span>Order</span><span>${row.order_ref}</span></div>
-      <div class="rcptd-row"><span>Ticket number</span><span>nuII</span></div>
+      <div class="rcptd-row"><span>Ticket number</span><span>${row.ticket_number || '—'}</span></div>
       <div class="rcptd-row"><span>Mva. (VAT)</span><span>${vatKr}</span></div>
       <div class="rcptd-row"><span>Mva. (VAT) %</span><span>${vatPct}%</span></div>
       ${discountRowHTML}
