@@ -1491,7 +1491,7 @@ ul li::before {
 
 /* Profile page: list-row leading icons tinted pale blue #86affe (Android / non-iOS) */
 html:not(.ios) .page-profile .list-row img.icon-24:first-child {
-  filter: invert(67%) sepia(60%) saturate(500%) hue-rotate(195deg) brightness(105%);
+  filter: brightness(0) saturate(100%) invert(61%) sepia(84%) saturate(199%) hue-rotate(182deg) brightness(87%) contrast(133%); /* ≈ #86affe */
 }
 
 /* Overflow dots button (iOS only) */
