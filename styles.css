@@ -1489,6 +1489,11 @@ ul li::before {
   filter: brightness(0) invert(42%) sepia(1) saturate(800%) hue-rotate(215deg) brightness(105%);
 }
 
+/* Profile page: list-row leading icons tinted pale blue #86affe (Android / non-iOS) */
+html:not(.ios) .page-profile .list-row img.icon-24:first-child {
+  filter: invert(67%) sepia(60%) saturate(500%) hue-rotate(195deg) brightness(105%);
+}
+
 /* Overflow dots button (iOS only) */
 .ios .overflow {
   background: #27282d !important;
