@@ -1113,6 +1113,17 @@ ul li::before {
 .page-profile .title-copy { margin-top: calc(1.6vh - 12.5px); } /* reduced by half the title height (~25px) */
 .page-profile .topbar     { padding-bottom: 1.6vh; }
 
+/* Android / non-iOS: Profile title matches the Tickets big heading
+   (28px / 700 / #fffffe) and sits on the same line (8px topbar pad + 40px margin). */
+html:not(.ios) .page-profile .title-copy { margin-top: 0; }
+html:not(.ios) .page-profile .topbar h1 {
+  margin: 48px 0 0 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fffffe;
+  line-height: 1.15;
+}
+
 /* =============================================================
    PAGE — #claim  (renderClaimTicket — line 1078)
    PAGE — #payment  (renderPayment — line 1127)
