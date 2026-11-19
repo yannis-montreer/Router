@@ -1656,7 +1656,7 @@ async function renderProfile(){
       <button class="log-out">Log out</button>
     </section>
 
-    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28669)</div>
+    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28670)</div>
   `;
 
   return {
@@ -2569,8 +2569,10 @@ async function renderActiveTicket() {
       };
       const atcMinus = document.getElementById('atcMinus');
       const atcPlus  = document.getElementById('atcPlus');
-      if (atcMinus) atcMinus.addEventListener('click', () => shiftMinutesLeft(-1));
-      if (atcPlus)  atcPlus.addEventListener('click',  () => shiftMinutesLeft(+1));
+      // pointerup fires on the first touch (no click-delay/suppression); a scroll
+      // gesture fires pointercancel instead, so it won't trigger by accident.
+      if (atcMinus) atcMinus.addEventListener('pointerup', () => shiftMinutesLeft(-1));
+      if (atcPlus)  atcPlus.addEventListener('pointerup',  () => shiftMinutesLeft(+1));
 
       // Ticket details link → active ticket detail page
       const detailLink = document.getElementById('atcDetailLink');
