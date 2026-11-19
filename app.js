@@ -3,10 +3,41 @@ import PriceDB from './data/pricedb.js';
 
 // ── PWA: register service worker (skipped inside Cordova) ──────────────────
 if (!window.cordova && 'serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js')
+  navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
     .then(reg => console.log('[SW] registered, scope:', reg.scope))
     .catch(err => console.warn('[SW] registration failed:', err));
 }
+
+// ── Force refresh: double-tap the version text on the Profile page ──────────
+// Unregisters the service worker, wipes all caches, re-downloads the core files
+// bypassing the HTTP cache, then reloads.
+async function forceRefreshApp(el) {
+  if (el) el.textContent = 'Refreshing…';
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    if (window.caches) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    const core = ['./', 'index.html', 'app.js', 'styles.css', 'ticketsView.js',
+                  'manifest.json', 'sw.js', 'data/tickets.js', 'data/pricedb.js'];
+    await Promise.allSettled(core.map(u => fetch(u, { cache: 'reload' })));
+  } catch (e) { console.warn('[refresh] failed:', e); }
+  location.reload();
+}
+(function () {
+  let lastTap = 0;
+  document.addEventListener('click', e => {
+    const el = e.target.closest && e.target.closest('#appVersion');
+    if (!el) return;
+    const now = Date.now();
+    if (now - lastTap < 400) { lastTap = 0; forceRefreshApp(el); }
+    else lastTap = now;
+  });
+})();
 
 // ── iOS detection: adds 'ios' class to <html> for iOS-specific styling ────────
 (function() {
@@ -1625,7 +1656,7 @@ async function renderProfile(){
       <button class="log-out">Log out</button>
     </section>
 
-    <div class="center subtle" style="padding:2.5vh 0">Version 7.92.2 (28668)</div>
+    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28669)</div>
   `;
 
   return {

@@ -1,6 +1,6 @@
 // sw.js — Cache-first service worker for Router PWA
 // Bump CACHE_VERSION when deploying changes (forces old cache to be replaced)
-const CACHE_VERSION = 'router-v19';
+const CACHE_VERSION = 'router-v20';
 
 const APP_SHELL = [
   './',
@@ -78,7 +78,8 @@ self.addEventListener('install', event => {
     caches.open(CACHE_VERSION).then(cache => {
       // Use individual adds so one missing file doesn't abort the whole cache
       return Promise.allSettled(
-        APP_SHELL.map(url => cache.add(url).catch(err => {
+        // cache:'reload' bypasses the HTTP cache so a new SW never stores stale files
+        APP_SHELL.map(url => cache.add(new Request(url, { cache: 'reload' })).catch(err => {
           console.warn('[SW] Failed to cache:', url, err);
         }))
       );
