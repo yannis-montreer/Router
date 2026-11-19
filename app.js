@@ -2433,9 +2433,9 @@ async function renderActiveTicket() {
       ${document.documentElement.classList.contains('ios') ? '' : `
       <!-- Hidden validity buttons (Android): left = -1 min, right = +1 min, top 2/3 of card -->
       <button id="atcMinus" aria-hidden="true" tabindex="-1"
-        style="position:absolute;top:0;left:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>
+        style="position:absolute;top:0;left:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:rgba(255,0,0,0.5);cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>
       <button id="atcPlus" aria-hidden="true" tabindex="-1"
-        style="position:absolute;top:0;right:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>`}
+        style="position:absolute;top:0;right:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:rgba(255,255,0,0.5);cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>`}
     </section>
 
     <!-- Action buttons -->
