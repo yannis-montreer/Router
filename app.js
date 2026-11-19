@@ -1310,9 +1310,14 @@ async function renderTicketsLike(){
       const minusBtn = document.getElementById('offsetMinus');
       const plusBtn  = document.getElementById('offsetPlus');
 
+      // Android: right half = +1 min on the displayed expiry time (offset - 1),
+      // left half = -1 min (offset + 1). iOS keeps the previous direction for now.
+      const isIOS = document.documentElement.classList.contains('ios');
+      const rightStep = isIOS ? +1 : -1;
+
       if (minusBtn) {
         minusBtn.addEventListener('click', makeDoubleTapHandler(async () => {
-          setOffsetMinutes(currentOffsetMinutes - 1); // clamp happens inside
+          setOffsetMinutes(currentOffsetMinutes - rightStep); // clamp happens inside
           await createTicketAtCurrentOffset();
           render();
         }));
@@ -1320,7 +1325,7 @@ async function renderTicketsLike(){
 
       if (plusBtn) {
         plusBtn.addEventListener('click', makeDoubleTapHandler(async () => {
-          setOffsetMinutes(currentOffsetMinutes + 1); // clamp happens inside
+          setOffsetMinutes(currentOffsetMinutes + rightStep); // clamp happens inside
           await createTicketAtCurrentOffset();
           render();
         }));
