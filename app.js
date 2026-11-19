@@ -1625,7 +1625,7 @@ async function renderProfile(){
       <button class="log-out">Log out</button>
     </section>
 
-    <div class="center subtle" style="padding:2.5vh 0">Version 7.92.2 (28667)</div>
+    <div class="center subtle" style="padding:2.5vh 0">Version 7.92.2 (28668)</div>
   `;
 
   return {
