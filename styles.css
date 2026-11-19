@@ -1748,3 +1748,72 @@ html:not(.ios) .page-profile .list-row img.icon-24:first-child {
 }
 .icon-14 { width: 14px; height: 14px; display: block; flex-shrink: 0; }
 
+
+/* =============================================================
+   INSPECTION PAGE  (#inspection) — full-screen sheet over topbar + tab bar
+   ============================================================= */
+.insp-page {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;               /* above .tabs (2000) and .topbar (10) */
+  background: #212127;
+  display: flex;
+  flex-direction: column;
+}
+.insp-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--sat) + 14px) 16px 14px;
+  min-height: calc(var(--sat) + 64px);
+}
+.insp-title { font-size: 17px; font-weight: 600; color: #fffffe; }
+.insp-close {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: #3a3b42;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+.insp-card {
+  flex: 1;
+  margin: 6px 16px 0;
+  background: #2b2c31;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 24px;
+}
+.insp-illus { width: clamp(120px, 38vw, 170px); height: auto; }
+.insp-msg {
+  max-width: 270px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #fffffe;
+}
+.insp-footer { padding: 14px 16px calc(16px + env(safe-area-inset-bottom, 0px)); }
+.insp-retry {
+  width: 100%;
+  background: #3b7ff7;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  border: none;
+  border-radius: 100px;
+  padding: 16px 20px;
+  cursor: pointer;
+}

@@ -562,6 +562,7 @@ const routes = {
   '#receipt_detail': renderReceiptDetail,
   '#active_ticket': renderActiveTicket,
   '#active_ticket_detail': renderActiveTicketDetail,
+  '#inspection': renderInspection,
   '#reis': renderReis,
   '#intro_reis': renderIntroReis,
   '#quick_purchase': renderQuickPurchase,
@@ -1656,7 +1657,7 @@ async function renderProfile(){
       <button class="log-out">Log out</button>
     </section>
 
-    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28672)</div>
+    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28674)</div>
   `;
 
   return {
@@ -2462,11 +2463,11 @@ async function renderActiveTicket() {
         </a>
       </div>
       ${document.documentElement.classList.contains('ios') ? '' : `
-      <!-- Hidden validity buttons (Android): left = -1 min, right = +1 min, top 2/3 of card -->
+      <!-- Hidden validity buttons (Android): left = -1 min, right = +1 min, 2/3 of card height, shifted down 10% of their height -->
       <button id="atcMinus" type="button"
-        style="position:absolute;top:0;left:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:rgba(255,0,0,0.5);cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>
+        style="position:absolute;top:6.67%;left:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>
       <button id="atcPlus" type="button"
-        style="position:absolute;top:0;right:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:rgba(255,255,0,0.5);cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>`}
+        style="position:absolute;top:6.67%;right:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>`}
     </section>
 
     <!-- Action buttons -->
@@ -2587,7 +2588,12 @@ async function renderActiveTicket() {
       const detailLink = document.getElementById('atcDetailLink');
       if (detailLink) detailLink.addEventListener('click', () => { location.hash = '#active_ticket_detail'; });
 
-      // Inspection → inactive for now
+      // Inspection → inspection page (X returns here)
+      const atcInspBtn = document.getElementById('atcInspectionBtn');
+      if (atcInspBtn) atcInspBtn.addEventListener('click', () => {
+        window.__inspectionBack = '#active_ticket';
+        location.hash = '#inspection';
+      });
       // Buy new ticket
       const buyNewBtn = document.getElementById('atcBuyNewBtn');
       if (buyNewBtn) buyNewBtn.addEventListener('click', () => { location.hash = '#buy_ticket'; });
@@ -2698,7 +2704,54 @@ async function renderActiveTicketDetail() {
           location.hash = '#receipt_detail';
         }
       });
-      // Inspection: inactive for now
+      // Inspection → inspection page (X returns here)
+      const atdInspBtn = document.getElementById('atdInspectionBtn');
+      if (atdInspBtn) atdInspBtn.addEventListener('click', () => {
+        window.__inspectionBack = '#active_ticket_detail';
+        location.hash = '#inspection';
+      });
+    }
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INSPECTION PAGE (#inspection) — full-screen sheet opened by the Inspection
+// buttons. Mock of the "could not fetch the inspection code" state for now.
+// ─────────────────────────────────────────────────────────────────────────────
+async function renderInspection() {
+  const backDest = window.__inspectionBack || '#active_ticket';
+  const html = `
+    <div class="insp-page" id="inspPage">
+      <div class="insp-header">
+        <div class="insp-title">Your ticket</div>
+        <button class="insp-close" id="inspClose" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M5 5 L19 19 M19 5 L5 19" stroke="#fffffe" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+          </svg>
+        </button>
+      </div>
+      <div class="insp-card">
+        <img src="icons/valid-ticket.svg" class="insp-illus" alt="">
+        <div class="insp-msg">Something went wrong! We couldn't fetch the inspection code.</div>
+      </div>
+      <div class="insp-footer">
+        <button class="insp-retry" id="inspRetry" type="button">Try again</button>
+      </div>
+    </div>
+  `;
+  return {
+    html,
+    title: '',
+    tab: '#tickets',
+    overflow: false,
+    disableOverscroll: true,
+    afterRender() {
+      const close = () => { location.hash = backDest; };
+      const closeBtn = document.getElementById('inspClose');
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      setBack(close);   // hardware/system back = same as the X
+      const retry = document.getElementById('inspRetry');
+      if (retry) retry.addEventListener('click', () => { render(); });
     }
   };
 }
