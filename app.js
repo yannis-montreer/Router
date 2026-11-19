@@ -1656,7 +1656,7 @@ async function renderProfile(){
       <button class="log-out">Log out</button>
     </section>
 
-    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28670)</div>
+    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28671)</div>
   `;
 
   return {
@@ -2463,9 +2463,9 @@ async function renderActiveTicket() {
       </div>
       ${document.documentElement.classList.contains('ios') ? '' : `
       <!-- Hidden validity buttons (Android): left = -1 min, right = +1 min, top 2/3 of card -->
-      <button id="atcMinus" aria-hidden="true" tabindex="-1"
+      <button id="atcMinus" type="button"
         style="position:absolute;top:0;left:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:rgba(255,0,0,0.5);cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>
-      <button id="atcPlus" aria-hidden="true" tabindex="-1"
+      <button id="atcPlus" type="button"
         style="position:absolute;top:0;right:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:rgba(255,255,0,0.5);cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>`}
     </section>
 
@@ -2569,10 +2569,9 @@ async function renderActiveTicket() {
       };
       const atcMinus = document.getElementById('atcMinus');
       const atcPlus  = document.getElementById('atcPlus');
-      // pointerup fires on the first touch (no click-delay/suppression); a scroll
-      // gesture fires pointercancel instead, so it won't trigger by accident.
-      if (atcMinus) atcMinus.addEventListener('pointerup', () => shiftMinutesLeft(-1));
-      if (atcPlus)  atcPlus.addEventListener('pointerup',  () => shiftMinutesLeft(+1));
+      // pointerdown fires immediately on the first touch (no click delay/suppression).
+      if (atcMinus) atcMinus.addEventListener('pointerdown', (e) => { e.preventDefault(); shiftMinutesLeft(-1); });
+      if (atcPlus)  atcPlus.addEventListener('pointerdown',  (e) => { e.preventDefault(); shiftMinutesLeft(+1); });
 
       // Ticket details link → active ticket detail page
       const detailLink = document.getElementById('atcDetailLink');
