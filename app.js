@@ -2430,6 +2430,12 @@ async function renderActiveTicket() {
           <img src="icons/chevron-right.svg" class="icon-16" alt="">
         </a>
       </div>
+      ${document.documentElement.classList.contains('ios') ? '' : `
+      <!-- Hidden validity buttons (Android): left = -1 min, right = +1 min, top 2/3 of card -->
+      <button id="atcMinus" aria-hidden="true" tabindex="-1"
+        style="position:absolute;top:0;left:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>
+      <button id="atcPlus" aria-hidden="true" tabindex="-1"
+        style="position:absolute;top:0;right:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>`}
     </section>
 
     <!-- Action buttons -->
@@ -2505,6 +2511,35 @@ async function renderActiveTicket() {
       // (startTicketCountdown was called on double-tap; we just ensure the element
       //  gets the current value immediately in case the interval hasn't fired yet)
       ticketCountdownRefreshDisplay();
+
+      // ── Hidden validity buttons: shift "x minutes left" by ±1 (range 1–5) ──
+      const shiftMinutesLeft = async (delta) => {
+        if (!window.__ticketExpiresAt) return;
+        const cur = Math.ceil((window.__ticketExpiresAt - Date.now()) / 60000);
+        const next = Math.min(5, Math.max(1, cur + delta));
+        if (next === cur) return;
+        const expiresAtMs = Date.now() + next * 60 * 1000;
+        window.__ticketExpiresAt = expiresAtMs;
+        ticketCountdownRefreshDisplay();
+        try {
+          const latestRows = await TicketsDB.listTickets({ limit: 1 });
+          if (latestRows && latestRows.length) {
+            const ticket = latestRows[0];
+            const zoneStr = (window.__confirmedZones && window.__confirmedZones.size > 0)
+              ? Array.from(window.__confirmedZones).join(',')
+              : ticket.zone;
+            const purchasedAt = new Date(expiresAtMs - ticketDurationMs(zoneStr));
+            await updateTicketZoneAndPrice(
+              ticket.id, zoneStr,
+              fmtDate(purchasedAt), fmtTime(purchasedAt), purchasedAt.toISOString()
+            );
+          }
+        } catch (e) { console.error('Failed to shift ticket validity:', e); }
+      };
+      const atcMinus = document.getElementById('atcMinus');
+      const atcPlus  = document.getElementById('atcPlus');
+      if (atcMinus) atcMinus.addEventListener('click', () => shiftMinutesLeft(-1));
+      if (atcPlus)  atcPlus.addEventListener('click',  () => shiftMinutesLeft(+1));
 
       // Ticket details link → active ticket detail page
       const detailLink = document.getElementById('atcDetailLink');
