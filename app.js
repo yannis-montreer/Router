@@ -1657,7 +1657,7 @@ async function renderProfile(){
       <button class="log-out">Log out</button>
     </section>
 
-    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28676)</div>
+    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28677)</div>
   `;
 
   return {
@@ -2766,7 +2766,7 @@ async function renderInspection() {
         if (!card) return;   // user already left the page
         card.classList.remove('loading');
         card.innerHTML = `
-          <img src="icons/valid-ticket.svg" class="insp-illus" alt="">
+          <img src="icons/falling-person.svg" class="insp-illus" alt="">
           <div class="insp-msg">Something went wrong! We couldn't fetch the inspection code.</div>`;
         const footer = document.getElementById('inspFooter');
         if (footer) footer.classList.remove('loading');
