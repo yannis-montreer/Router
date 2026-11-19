@@ -1827,3 +1827,6 @@ html:not(.ios) .page-profile .list-row img.icon-24:first-child {
 .insp-sk-qr { align-self: center; width: 52%; aspect-ratio: 1 / 1; border-radius: 4px; margin-bottom: 14px; }
 .insp-footer.loading { visibility: hidden; }
 @keyframes inspPulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* iOS: floating tab pill sits above the home indicator — keep the Profile footer (build number) clear of it */
+.ios .page-profile .view { padding-bottom: calc(var(--tabs-h) + 24px); }
