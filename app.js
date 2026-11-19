@@ -1657,7 +1657,7 @@ async function renderProfile(){
       <button class="log-out">Log out</button>
     </section>
 
-    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28674)</div>
+    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28675)</div>
   `;
 
   return {
@@ -2730,11 +2730,19 @@ async function renderInspection() {
           </svg>
         </button>
       </div>
-      <div class="insp-card">
-        <img src="icons/valid-ticket.svg" class="insp-illus" alt="">
-        <div class="insp-msg">Something went wrong! We couldn't fetch the inspection code.</div>
+      <div class="insp-card loading" id="inspCard">
+        <div class="insp-sk-row">
+          <div class="insp-sk" style="width:46%;height:16px"></div>
+          <div class="insp-sk" style="width:16%;height:16px"></div>
+        </div>
+        <div class="insp-sk" style="width:32px;height:32px;border-radius:8px;margin-top:20px"></div>
+        <div class="insp-sk" style="width:30%;height:12px;margin-top:20px"></div>
+        <div class="insp-sk light" style="width:68%;height:36px;margin-top:20px;border-radius:8px"></div>
+        <div class="insp-sk-divider"></div>
+        <div class="insp-sk light insp-sk-qr"></div>
+        <div class="insp-sk light insp-sk-qr"></div>
       </div>
-      <div class="insp-footer">
+      <div class="insp-footer loading" id="inspFooter">
         <button class="insp-retry" id="inspRetry" type="button">Try again</button>
       </div>
     </div>
@@ -2752,6 +2760,17 @@ async function renderInspection() {
       setBack(close);   // hardware/system back = same as the X
       const retry = document.getElementById('inspRetry');
       if (retry) retry.addEventListener('click', () => { render(); });
+      // Show the skeleton for 5s, then switch to the error state.
+      setTimeout(() => {
+        const card = document.getElementById('inspCard');
+        if (!card) return;   // user already left the page
+        card.classList.remove('loading');
+        card.innerHTML = `
+          <img src="icons/valid-ticket.svg" class="insp-illus" alt="">
+          <div class="insp-msg">Something went wrong! We couldn't fetch the inspection code.</div>`;
+        const footer = document.getElementById('inspFooter');
+        if (footer) footer.classList.remove('loading');
+      }, 5000);
     }
   };
 }

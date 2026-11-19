@@ -1817,3 +1817,13 @@ html:not(.ios) .page-profile .list-row img.icon-24:first-child {
   padding: 16px 20px;
   cursor: pointer;
 }
+
+/* Inspection page: skeleton loading state (shown ~5s before the error state) */
+.insp-card.loading { justify-content: flex-start; align-items: stretch; gap: 0; padding: 22px 18px; }
+.insp-sk { background: #3a3b42; border-radius: 6px; animation: inspPulse 1.2s ease-in-out infinite; }
+.insp-sk.light { background: #4a4b53; }
+.insp-sk-row { display: flex; justify-content: space-between; align-items: center; }
+.insp-sk-divider { height: 1px; background: #3a3b42; margin: 22px -18px 24px; }
+.insp-sk-qr { align-self: center; width: 52%; aspect-ratio: 1 / 1; border-radius: 4px; margin-bottom: 14px; }
+.insp-footer.loading { visibility: hidden; }
+@keyframes inspPulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
