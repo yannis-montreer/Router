@@ -1656,7 +1656,7 @@ async function renderProfile(){
       <button class="log-out">Log out</button>
     </section>
 
-    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28671)</div>
+    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28672)</div>
   `;
 
   return {
@@ -2569,9 +2569,19 @@ async function renderActiveTicket() {
       };
       const atcMinus = document.getElementById('atcMinus');
       const atcPlus  = document.getElementById('atcPlus');
-      // pointerdown fires immediately on the first touch (no click delay/suppression).
-      if (atcMinus) atcMinus.addEventListener('pointerdown', (e) => { e.preventDefault(); shiftMinutesLeft(-1); });
-      if (atcPlus)  atcPlus.addEventListener('pointerdown',  (e) => { e.preventDefault(); shiftMinutesLeft(+1); });
+      // Double-tap required (same as the offset buttons on the Tickets page):
+      // the second tap within 300 ms triggers the shift.
+      const onDoubleTap = (delta) => {
+        let lastTap = 0;
+        return (e) => {
+          e.preventDefault();
+          const now = Date.now();
+          if (now - lastTap < 300) { lastTap = 0; shiftMinutesLeft(delta); }
+          else lastTap = now;
+        };
+      };
+      if (atcMinus) atcMinus.addEventListener('pointerdown', onDoubleTap(-1));
+      if (atcPlus)  atcPlus.addEventListener('pointerdown',  onDoubleTap(+1));
 
       // Ticket details link → active ticket detail page
       const detailLink = document.getElementById('atcDetailLink');
