@@ -1657,7 +1657,7 @@ async function renderProfile(){
       <button class="log-out">Log out</button>
     </section>
 
-    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28675)</div>
+    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28676)</div>
   `;
 
   return {
@@ -2462,12 +2462,12 @@ async function renderActiveTicket() {
           <img src="icons/chevron-right.svg" class="icon-16" alt="">
         </a>
       </div>
-      ${document.documentElement.classList.contains('ios') ? '' : `
-      <!-- Hidden validity buttons (Android): left = -1 min, right = +1 min, 2/3 of card height, shifted down 10% of their height -->
+      ${`
+      <!-- Hidden validity buttons (Android + iOS): left = -1 min, right = +1 min, 2/3 of card height, shifted down 10% of their height -->
       <button id="atcMinus" type="button"
-        style="position:absolute;top:6.67%;left:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>
+        style="position:absolute;top:6.67%;left:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;appearance:none;-webkit-appearance:none;border-radius:0;"></button>
       <button id="atcPlus" type="button"
-        style="position:absolute;top:6.67%;right:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;"></button>`}
+        style="position:absolute;top:6.67%;right:0;width:50%;height:66.67%;margin:0;padding:0;border:none;background:none;cursor:pointer;z-index:5;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;appearance:none;-webkit-appearance:none;border-radius:0;"></button>`}
     </section>
 
     <!-- Action buttons -->
