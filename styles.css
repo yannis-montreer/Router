@@ -12,6 +12,8 @@
   --fs-md:     16px;
   --fs-lg:     22px;
   --color-bg:  #212127;
+  /* status-bar height; JS overrides it on iOS standalone when env() reports 0 */
+  --sat:       env(safe-area-inset-top, 0px);
   /* env() adds iPhone home-indicator clearance automatically */
   --tabs-h:    calc(76px + env(safe-area-inset-bottom, 0px));
 }
@@ -76,7 +78,7 @@ ul li::before {
   display: flex;
   flex-direction: column;
   /* env(safe-area-inset-top) handles iPhone notch / Dynamic Island */
-  padding: env(safe-area-inset-top, 0px) 5vw 2.9vh 5vw;
+  padding: var(--sat) 5vw 2.9vh 5vw;
   background: #212127;
 }
 .topbar h1 {
@@ -100,7 +102,7 @@ ul li::before {
 .topbar.mode-expired .top-row        { padding-top: 0; }
 .topbar.mode-expired #title          { margin-top: 0; padding-top: 0; }
 /* Back-button pages: respect safe-area (Dynamic Island / notch on iPhone) */
-.topbar.mode-expired                 { padding-top: calc(env(safe-area-inset-top, 0px) + 8px); padding-bottom: 1.6vh; }
+.topbar.mode-expired                 { padding-top: calc(var(--sat) + 8px); padding-bottom: 1.6vh; }
 
 /* =============================================================
    SHARED LAYOUT — MAIN VIEW
@@ -854,7 +856,7 @@ ul li::before {
 .page-tickets-home .title-copy { display: none; }
 
 .page-tickets-home .topbar {
-  padding-top: 8px;            /* match the Quick purchase header height */
+  padding-top: calc(var(--sat) + 8px);  /* status bar + Quick purchase header height */
   padding-bottom: 0;
   background: transparent;
 }
@@ -862,7 +864,7 @@ ul li::before {
 
 .page-tickets-home .topbar .overflow {
   position: absolute;
-  top: 8px;
+  top: calc(var(--sat) + 8px);
   right: 5vw;
   z-index: 11;
   margin: 0;
@@ -870,7 +872,7 @@ ul li::before {
 /* mini title: always present so it can fade; hidden until scrolled */
 .page-tickets-home .topbar .top-row #title {
   position: absolute;
-  top: 10px;
+  top: calc(var(--sat) + 10px);
   left: 5vw;
   margin: 0;
   z-index: 11;
@@ -884,7 +886,7 @@ ul li::before {
   content: "";
   position: absolute;
   left: 0; right: 0; top: 0;
-  height: calc(env(safe-area-inset-top, 0px) + 48px);
+  height: calc(var(--sat) + 48px);
   background: #212127;
   z-index: 10;
   opacity: 0;
@@ -907,7 +909,7 @@ ul li::before {
 .page-tickets .dashed:first-of-type { margin-top: 0; }
 .page-tickets .view               { padding-bottom: calc(12vh + 120px); }
 .page-tickets-home .view {
-  height: calc(100dvh - env(safe-area-inset-top, 0px));
+  height: calc(100dvh - var(--sat));
 }
 
 /* =============================================================

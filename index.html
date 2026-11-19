@@ -13,6 +13,21 @@
       var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       if (isIOS) document.documentElement.classList.add('ios');
+
+      // iOS Home-Screen app draws under the status bar (black-translucent).
+      // If env(safe-area-inset-top) wrongly reports 0 there, fall back to a
+      // Dynamic-Island-sized offset so page titles are not clipped.
+      if (isIOS && window.navigator.standalone) {
+        var fixSat = function () {
+          var probe = document.createElement('div');
+          probe.style.cssText = 'position:fixed;top:0;left:0;visibility:hidden;padding-top:env(safe-area-inset-top,0px)';
+          document.body.appendChild(probe);
+          var inset = parseFloat(getComputedStyle(probe).paddingTop) || 0;
+          document.body.removeChild(probe);
+          if (inset < 1) document.documentElement.style.setProperty('--sat', '54px');
+        };
+        document.addEventListener('DOMContentLoaded', fixSat);
+      }
     })();
   </script>
   <style>
