@@ -1498,8 +1498,18 @@ html:not(.ios) .page-profile .topbar h1 {
 
 /* Profile page: list-row leading icons tinted pale blue #86affe (iOS)
    brightness(0) → black, invert(42%) → dark gray, puis on colore */
-.ios .page-profile .list-row img.icon-24:first-child {
-  filter: brightness(0) saturate(100%) invert(61%) sepia(84%) saturate(199%) hue-rotate(182deg) brightness(87%) contrast(133%); /* ≈ #86affe, same as Android */
+.ios .page-profile .list-row .tint-icon {
+  display: block;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  background-color: #86affe;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
 }
 
 /* Profile page: list-row leading icons tinted pale blue #86affe (Android / non-iOS) */

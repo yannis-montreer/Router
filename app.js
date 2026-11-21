@@ -866,6 +866,22 @@ async function render() {
   const viewEl0 = document.getElementById('view');
   if (viewEl0) viewEl0.scrollTop = 0;
 
+  // iOS Safari renders the CSS colour-matrix filter used on Android as purple, so on
+  // iOS the Profile list icons are tinted with a mask instead (exact #86affe).
+  if (document.documentElement.classList.contains('ios') && document.body.classList.contains('page-profile')) {
+    view.querySelectorAll('.list-row img.icon-24:first-child').forEach(img => {
+      const src = img.getAttribute('src');
+      if (!src) return;
+      const span = document.createElement('span');
+      span.className = 'tint-icon';
+      span.setAttribute('aria-hidden', 'true');
+      const u = 'url("' + src + '")';
+      span.style.webkitMaskImage = u;
+      span.style.maskImage = u;
+      img.replaceWith(span);
+    });
+  }
+
   // keep running afterRender hook if defined
   if (typeof res.afterRender === 'function') res.afterRender()
 
@@ -1657,7 +1673,7 @@ async function renderProfile(){
       <button class="log-out">Log out</button>
     </section>
 
-    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28681)</div>
+    <div class="center subtle" id="appVersion" style="padding:2.5vh 0">Version 7.92.2 (28682)</div>
   `;
 
   return {
